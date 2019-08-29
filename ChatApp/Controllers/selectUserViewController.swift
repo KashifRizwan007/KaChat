@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 protocol prepareNewChat{
     func fillFields(rid:String, rName:String, performSegue: Bool)
@@ -26,6 +27,7 @@ class selectUserViewController: UIViewController,UITableViewDelegate,UITableView
         self.userListTableView.delegate = self
         self.userListTableView.dataSource = self
         self.userListTableView.rowHeight = UITableView.automaticDimension
+        self.userListTableView.reloadData()
         self.userListner()
     }
     
@@ -41,7 +43,7 @@ class selectUserViewController: UIViewController,UITableViewDelegate,UITableView
                         self.userDataList = msgs
                         self.userListTableView.reloadData()
                     }else{
-                        self.msg = "No Chats"
+                        self.msg = "No Users"
                         self.userDataList = nil
                         self.userListTableView.reloadData()
                     }
@@ -60,12 +62,16 @@ extension selectUserViewController{
         cell.name.text = self.userDataList[indexPath.row].name
         cell.name.text = self.userDataList[indexPath.row].name
         cell.name.text = self.userDataList[indexPath.row].name
-        if self.userDataList[indexPath.row].isActive{
-            cell.status.text = "Online"
-            cell.status.textColor = .green
+        
+        if self.userDataList[indexPath.row].image == ""{
+            cell.userImage.image = UIImage(named: "userProfile.jpg")
         }else{
-            cell.status.text = "Offline"
-            cell.status.textColor = .black
+            cell.userImage!.sd_setImage(with: URL(string: self.userDataList[indexPath.row].image), completed: nil)
+        }
+        if self.userDataList[indexPath.row].isActive == true{
+            cell.userImage.borderColor = UIColor(red: 7/255, green: 224/255, blue: 40/255, alpha: 1.0)
+        }else{
+            cell.userImage.borderColor = UIColor(red: 71/255, green: 92/255, blue: 102/255, alpha: 1.0)
         }
         return cell
     }

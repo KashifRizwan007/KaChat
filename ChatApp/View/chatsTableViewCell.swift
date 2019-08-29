@@ -13,6 +13,7 @@ class chatsTableViewCell: UITableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var date: UILabel!
     @IBOutlet weak var content: UILabel!
+    @IBOutlet weak var userImage: UIImageViewRounded!
     
     override func awakeFromNib() {
         super.awakeFromNib()

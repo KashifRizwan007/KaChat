@@ -18,10 +18,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
-        self.userActivityObj = user_activity()
         
         let userLoginStatus = UserDefaults.standard.bool(forKey: "isUserLoggedIn")
+        
         if userLoginStatus, let _ = Auth.auth().currentUser{
+            self.userActivityObj = user_activity()
             self.userActivityObj.isUserActive(isActive: true, completion: {(error) in
                 if let err = error{
                     let navigationController = application.windows[0].rootViewController as! UINavigationController
@@ -31,7 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     activeViewCont!.present(alert, animated: true, completion: nil)
                 }
             })
-            self.userActivityObj = user_activity()
             RouteManager.shared.showHome()
         }
         return true

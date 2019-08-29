@@ -14,14 +14,12 @@ struct userCodable : Codable {
     let image : String?
     let isActive : String?
     let name : String?
-    let userType : String?
     
     enum CodingKeys: String, CodingKey {
         case email = "email"
         case image = "image"
         case isActive = "isActive"
         case name = "name"
-        case userType = "userType"
     }
     
     init(from decoder: Decoder) throws {
@@ -30,7 +28,6 @@ struct userCodable : Codable {
         image = try values.decodeIfPresent(String.self, forKey: .image)
         isActive = try values.decodeIfPresent(String.self, forKey: .isActive)
         name = try values.decodeIfPresent(String.self, forKey: .name)
-        userType = try values.decodeIfPresent(String.self, forKey: .userType)
     }
     
 }

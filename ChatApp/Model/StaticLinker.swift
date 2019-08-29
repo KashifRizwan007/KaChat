@@ -12,6 +12,7 @@ import Firebase
 struct staticLinker {
     static var imageUploadProgress: StorageUploadTask!
     static var listnerRef: ListenerRegistration!
+    static var listnerRef1: ListenerRegistration!
     
     static func getPastStatus(date: String) -> (Date,String){
         let myDateFormatter = DateFormatter()

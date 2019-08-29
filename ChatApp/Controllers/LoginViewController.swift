@@ -77,6 +77,12 @@ class LoginViewController: UIViewController,signInFill {
                         RouteManager.shared.showHome()
                     }))
                     self.present(alert, animated: true, completion: nil)
+                    let userActivityObj = user_activity()
+                    userActivityObj.isUserActive(isActive: true, completion: {(error) in
+                        if let err = error{
+                            print(err)
+                        }
+                    })
                 }
             })
         }else{

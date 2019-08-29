@@ -17,14 +17,11 @@ struct user_activity{
     let uid = Auth.auth().currentUser?.uid
     
     func isUserActive(isActive: Bool, completion: @escaping (_ error: String?) -> ()){
-        print("odjnfovenwfvoen")
         self.db.collection("chatUsers").document(self.uid!).updateData(["isActive":String(isActive)], completion: {(error) in
-            print("odjnfovenwfvoen")
             if let err = error{
                 print(err)
                 completion(err.localizedDescription)
             }else{
-                print(self.uid)
                 completion(nil)
             }
         })
@@ -62,7 +59,7 @@ struct user_activity{
         }else{
             chatId = rid + sid
         }
-        self.uploadImage(imageId: formattedDate, image: _message, completion: {(error,url) in
+        self.uploadImage(image: _message, completion: {(error,url) in
             var ref:DocumentReference?
             if let err = error{
                 completion(err,nil)
@@ -99,9 +96,9 @@ struct user_activity{
         })
     }
     
-    func uploadImage(imageId:String, image:UIImage?, completion: @escaping (_ error: String?,_ url:URL?) -> ()){
+    func uploadImage(image:UIImage?, completion: @escaping (_ error: String?,_ url:URL?) -> ()){
         let data = image!.jpegData(compressionQuality: 1.0)
-        let imageUpload = Storage.storage().reference().child("Images/\(imageId))/profilePic.jpg")
+        let imageUpload = Storage.storage().reference().child("Images/\(UUID())\(uid!)/image.jpg")
         staticLinker.imageUploadProgress = imageUpload.putData(data!, metadata: nil) { (metadata, error) in
             if let err = error {
                 completion(err.localizedDescription,nil)
@@ -119,7 +116,7 @@ struct user_activity{
     
     func uploadProfileImage( image:UIImage?, completion: @escaping (_ error: String?,_ url:URL?) -> ()){
         let data = image!.jpegData(compressionQuality: 1.0)
-        let imageUpload = Storage.storage().reference().child("Images/\(String(describing: uid!))/profilePic.jpg")
+        let imageUpload = Storage.storage().reference().child("Images/\(uid!)/image.jpg")
         _ = imageUpload.putData(data!, metadata: nil) { (metadata, error) in
             if let err = error {
                 completion(err.localizedDescription,nil)
@@ -166,7 +163,8 @@ struct user_activity{
     }
     
     func getAllUsers(completion: @escaping (_ error: String?,_ messages:[user]?) -> ()){
-        staticLinker.listnerRef = self.db.collection("chatUsers").addSnapshotListener({(snapshot, error) in
+        self.db.collection("chatUsers").addSnapshotListener({(snapshot, error) in
+            print("isbvisnv")
             if let err = error{
                 completion(err.localizedDescription,nil)
             }else{
@@ -179,7 +177,7 @@ struct user_activity{
                     {
                         temp = try decoder.decode(userCodable.self, from: jsonData)
                         if documents.documentID != self.uid{
-                            DataArray.append(user(email: temp.email!, image: temp.image!, isActive: temp.isActive!, name: temp.name!, userType: temp.userType!, userId: documents.documentID))
+                            DataArray.append(user(email: temp.email!, image: temp.image!, isActive: temp.isActive!, name: temp.name!, userId: documents.documentID))
                         }
                     }
                     catch{
@@ -191,6 +189,37 @@ struct user_activity{
                 }else{
                     completion(nil,DataArray)
                 }
+            }
+        })
+    }
+    
+    func getUser(id:String, completion: @escaping (_ error: String?,_ user:user?) -> ()){
+        staticLinker.listnerRef1 = self.db.collection("chatUsers").document(id).addSnapshotListener( {(document,error) in
+            if let err = error{
+                completion(err.localizedDescription,nil)
+            }else if let document = document, document.exists {
+                let jsonData = try! JSONSerialization.data(withJSONObject: document.data()!, options: JSONSerialization.WritingOptions.prettyPrinted)
+                let decoder = JSONDecoder()
+                do
+                {
+                    let temp = try decoder.decode(userCodable.self, from: jsonData)
+                    if document.documentID != self.uid{
+                        completion(nil,user(email: temp.email!, image: temp.image!, isActive: temp.isActive!, name: temp.name!, userId: document.documentID))
+                    }
+                }
+                catch{
+                    print(error.localizedDescription)
+                }
+            }
+        })
+    }
+    
+    func getImage(id:String, completion: @escaping (_ error: String?,_ url:String?) -> ()){
+        self.db.collection("chatUsers").document(id).getDocument(completion: {(document,error) in
+            if let err = error{
+                completion(err.localizedDescription,"")
+            }else if let document = document, document.exists {
+                completion(nil,document.data()!["image"] as? String)
             }
         })
     }

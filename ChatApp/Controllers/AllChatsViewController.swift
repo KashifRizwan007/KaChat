@@ -23,15 +23,18 @@ class AllChatsViewController: UIViewController,UITableViewDelegate,UITableViewDa
     private var chatDataList:[message]!
     private var uid = Auth.auth().currentUser?.uid
     private var selectedUser:user!
+    private var ActiveUsers = [String]()
     private var rid:String!
     private var rName:String!
     var performSegue = false
+    var imageUrls = [String:String]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.chatsTableView.delegate = self
         self.chatsTableView.dataSource = self
         self.chatsTableView.rowHeight = UITableView.automaticDimension
+        self.activeListner()
         self.chatListner()
     }
     
@@ -76,8 +79,54 @@ extension AllChatsViewController{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "chatCell") as! chatsTableViewCell
         if self.chatDataList[indexPath.row].sid == uid {
+            if self.ActiveUsers.contains(self.chatDataList[indexPath.row].rid){
+                cell.userImage.borderColor = UIColor(red: 7/255, green: 224/255, blue: 40/255, alpha: 1.0)
+            }else{
+                cell.userImage.borderColor = UIColor(red: 71/255, green: 92/255, blue: 102/255, alpha: 1.0)
+            }
+            if let url = self.imageUrls[self.chatDataList[indexPath.row].rid]{
+                if url == ""{
+                    cell.userImage.image = UIImage(named: "userProfile.jpg")
+                }else{
+                    cell.userImage!.sd_setImage(with: URL(string: url), completed: nil)
+                }
+            }else{
+                self.getChatsObj.getImage(id: self.chatDataList[indexPath.row].rid, completion: {(error,url) in
+                    if let url = url{
+                        if url == ""{
+                            cell.userImage.image = UIImage(named: "userProfile.jpg")
+                        }else{
+                            cell.userImage!.sd_setImage(with: URL(string: url), completed: nil)
+                        }
+                        self.imageUrls[self.chatDataList[indexPath.row].rid] = url
+                    }
+                })
+            }
             cell.name.text = self.chatDataList[indexPath.row].rName
         }else{
+            if self.ActiveUsers.contains(self.chatDataList[indexPath.row].sid){
+                cell.userImage.borderColor = UIColor(red: 7/255, green: 224/255, blue: 40/255, alpha: 1.0)
+            }else{
+                cell.userImage.borderColor = UIColor(red: 71/255, green: 92/255, blue: 102/255, alpha: 1.0)
+            }
+            if let url = self.imageUrls[self.chatDataList[indexPath.row].sid]{
+                if url == ""{
+                    cell.userImage.image = UIImage(named: "userProfile.jpg")
+                }else{
+                    cell.userImage!.sd_setImage(with: URL(string: url), completed: nil)
+                }
+            }else{
+                self.getChatsObj.getImage(id: self.chatDataList[indexPath.row].sid, completion: {(error,url) in
+                    if let url = url{
+                        if url == ""{
+                            cell.userImage.image = UIImage(named: "userProfile.jpg")
+                        }else{
+                            cell.userImage!.sd_setImage(with: URL(string: url), completed: nil)
+                        }
+                        self.imageUrls[self.chatDataList[indexPath.row].sid] = url
+                    }
+                })
+            }
             cell.name.text = self.chatDataList[indexPath.row].sName
         }
         cell.date.text = staticLinker.getPastTime(for: staticLinker.getPastStatus(date: self.chatDataList[indexPath.row].date).0)
@@ -133,5 +182,21 @@ extension AllChatsViewController{
         }
         self.performSegue(withIdentifier: "toMessages", sender: nil)
         self.chatsTableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    func activeListner(){
+        self.getChatsObj.getAllUsers(completion: {(error,users) in
+            print("isdbvfksnvsj")
+            if let _ = error{
+            }else if let users = users{
+                self.ActiveUsers = [String]()
+                for user in users{
+                    if user.isActive{
+                        self.ActiveUsers.append(user.userId)
+                    }
+                }
+                self.chatsTableView.reloadData()
+            }
+        })
     }
 }

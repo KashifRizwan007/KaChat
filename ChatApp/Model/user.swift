@@ -13,10 +13,9 @@ struct user {
     let image : String
     let isActive : Bool
     let name : String
-    let userType : String
     let userId : String
     
-    init(email : String, image : String, isActive : String, name : String, userType : String, userId: String) {
+    init(email : String, image : String, isActive : String, name : String, userId: String) {
         self.email = email
         self.image = image
         if isActive == "true"{
@@ -25,7 +24,6 @@ struct user {
             self.isActive = false
         }
         self.name = name
-        self.userType = userType
         self.userId = userId
     }
 }

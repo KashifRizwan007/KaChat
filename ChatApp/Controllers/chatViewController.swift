@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import IQKeyboardManager
 import GrowingTextView
+import SDWebImage
 
 class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
     
@@ -29,27 +30,57 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
     private var bringMore = false
     private var selectedIndex:IndexPath!
     private var initiate = false
+    private var initiate1 = false
     
     @IBOutlet weak var messageTableView: UITableView!
+    @IBOutlet weak var navItem: UINavigationItem!
     var cellHeight:CGFloat!
     var bottomConstraint: NSLayoutConstraint?
     var alertView: UIAlertController!
     var progressDownload: UIProgressView!
     private let refreshControl = UIRefreshControl()
+    let navigationView = UIView(frame: CGRect(x: 0, y: 0, width: 50 , height: 55))
+    let image : UIImage = UIImage(named: "userProfile")!
+    let imageView = UIImageViewRounded(frame: CGRect(x: -100, y: 0, width: 40, height: 40))
+    let nameLabel : UILabel = UILabel(frame: CGRect(x: -50, y: 10, width: 200, height: 25))
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        IQKeyboardManager.shared().isEnableAutoToolbar = false
-        IQKeyboardManager.shared().isEnabled = false
         self.messageTableView.delegate = self
         self.messageTableView.dataSource = self
         self.configureUI()
-        self.chatListner()
+        self.setUpNavigationBar()
+    }
+    
+    private func setUpNavigationBar(){
+        nameLabel.text = recvName
+        nameLabel.textColor = UIColor.black
+        nameLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        navigationView.addSubview(nameLabel)
+        
+        imageView.borderColor = UIColor(red: 44/255, green: 118/255, blue: 211/255, alpha: 1.0)
+        imageView.circular = true
+        imageView.borderWidth = 2.0
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = image
+        
+        navigationView.addSubview(imageView)
+        navItem.titleView = navigationView
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         IQKeyboardManager.shared().isEnableAutoToolbar = true
         IQKeyboardManager.shared().isEnabled = true
+        staticLinker.listnerRef.remove()
+        staticLinker.listnerRef1.remove()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.nameLabel.text = self.recvName
+        self.chatListner()
+        self.userInfoListner()
+        IQKeyboardManager.shared().isEnableAutoToolbar = false
+        IQKeyboardManager.shared().isEnabled = false
     }
     
     private func configureUI(){
@@ -90,10 +121,13 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
    
     @IBAction func sendMessageBtn(_ sender: Any) {
         if let m = self.messageField.text{
+            self.messageField.text = ""
             let date = String(Date().timeIntervalSince1970)
             self.userActivityObj.sendMessage(formattedDate: date, sid: self.uid!, rid: recvId!, sName: uName!, rName: recvName!, _message: m, completion: {(error,msg) in
                 if let err = error{
-                    print(err)
+                    let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                    self.present(alert, animated: true, completion: nil)
                 }
             })
         }
@@ -249,7 +283,7 @@ extension chatViewController{
     }
     
     func chatListner(){
-        db.collection("messages").whereField("chatId", isEqualTo: self.chatId!).order(by: "date", descending: true).limit(to: 5).addSnapshotListener({(snapshot, err) in
+        staticLinker.listnerRef = db.collection("messages").whereField("chatId", isEqualTo: self.chatId!).order(by: "date", descending: true).limit(to: 5).addSnapshotListener({(snapshot, err) in
             if let err = err {
                 let alert = UIAlertController(title: "Alert", message: err.localizedDescription, preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
@@ -280,6 +314,7 @@ extension chatViewController{
                         print(error.localizedDescription)
                     }
                 }
+                if self.msgs.count == 0{self.msg = "No Messages"; self.messageTableView.reloadData()}
                 if self.initiate == false{
                     self.messageTableView.reloadData()
                     if let lastDocIndex = snapshot!.documents.last{
@@ -330,6 +365,32 @@ extension chatViewController{
         }else{
             self.refreshControl.endRefreshing()
         }
+    }
+    
+    func userInfoListner(){
+        self.userActivityObj.getUser(id: self.recvId, completion: {(error,user) in
+            if let err = error{
+                print(err)
+            }else{
+                if self.initiate1 == false{
+                    if user!.isActive{
+                        self.imageView.borderColor = UIColor(red: 7/255, green: 224/255, blue: 40/255, alpha: 1.0)
+                    }else{
+                        self.imageView.borderColor = UIColor(red: 71/255, green: 92/255, blue: 102/255, alpha: 1.0)
+                    }
+                    if user?.image != ""{
+                        self.imageView.sd_setImage(with: URL(string: user!.image), completed: nil)
+                    }
+                    self.initiate1 = true
+                }else{
+                    if user!.isActive{
+                        self.imageView.borderColor = UIColor(red: 7/255, green: 224/255, blue: 40/255, alpha: 1.0)
+                    }else{
+                        self.imageView.borderColor = UIColor(red: 71/255, green: 92/255, blue: 102/255, alpha: 1.0)
+                    }
+                }
+            }
+        })
     }
 }
 

@@ -10,7 +10,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Chat View Controller-->
+        <!--Title-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="chatViewController" customModule="ChatApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -389,7 +389,7 @@
                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3PX-dP-skl">
                                 <rect key="frame" x="0.0" y="617" width="375" height="50"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cmX-Qh-OSp">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cmX-Qh-OSp">
                                         <rect key="frame" x="337" y="14" width="30" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="4RE-Oy-MIe"/>
@@ -400,7 +400,7 @@
                                             <action selector="sendMessageBtn:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oKg-1t-Xmo"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cIx-5N-hqB">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cIx-5N-hqB">
                                         <rect key="frame" x="297" y="16.5" width="25" height="25"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="25" id="PGF-iE-ojO"/>
@@ -408,7 +408,7 @@
                                         </constraints>
                                         <state key="normal" title="Button" image="camera"/>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FHW-Pc-jcd">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FHW-Pc-jcd">
                                         <rect key="frame" x="8" y="11.5" width="30" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="gRV-ib-7xl"/>
@@ -416,7 +416,7 @@
                                         </constraints>
                                         <state key="normal" title="Button" image="icons8-more-100"/>
                                     </button>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Szt-Gl-ofp" customClass="GrowingTextView" customModule="GrowingTextView">
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Szt-Gl-ofp" customClass="GrowingTextView" customModule="GrowingTextView">
                                         <rect key="frame" x="48" y="8" width="239" height="38"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" name="AlNile" family="Al Nile" pointSize="16"/>
@@ -474,10 +474,12 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <navigationItem key="navigationItem" title="Title" id="u9P-bc-gK4"/>
                     <connections>
                         <outlet property="containerView" destination="3PX-dP-skl" id="olb-8U-bC4"/>
                         <outlet property="messageField" destination="Szt-Gl-ofp" id="JbB-Mt-7Nb"/>
                         <outlet property="messageTableView" destination="4g1-ds-OFe" id="K88-jR-ajm"/>
+                        <outlet property="navItem" destination="u9P-bc-gK4" id="R1t-tV-X0w"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -855,7 +857,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="342" height="105.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="alpaca" translatesAutoresizingMaskIntoConstraints="NO" id="3Y1-gG-V44" customClass="UIImageViewRounded" customModule="ChatApp" customModuleProvider="target">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="userProfile" translatesAutoresizingMaskIntoConstraints="NO" id="3Y1-gG-V44" customClass="UIImageViewRounded" customModule="ChatApp" customModuleProvider="target">
                                                     <rect key="frame" x="15" y="13" width="80" height="80"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="80" id="3Zt-9C-Vcg"/>
@@ -863,35 +865,29 @@
                                                     </constraints>
                                                     <userDefinedRuntimeAttributes>
                                                         <userDefinedRuntimeAttribute type="boolean" keyPath="circular" value="YES"/>
+                                                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                            <real key="value" value="4"/>
+                                                        </userDefinedRuntimeAttribute>
                                                     </userDefinedRuntimeAttributes>
                                                 </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lht-yQ-Kwu">
-                                                    <rect key="frame" x="103" y="42.5" width="38.5" height="21"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lht-yQ-Kwu">
+                                                    <rect key="frame" x="103" y="42.5" width="231" height="20.5"/>
                                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                                     <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QH1-RW-beo">
-                                                    <rect key="frame" x="103" y="72.5" width="231" height="14.5"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                                    <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstAttribute="bottomMargin" secondItem="3Y1-gG-V44" secondAttribute="bottom" constant="2" id="PRo-JO-hks"/>
                                                 <constraint firstItem="3Y1-gG-V44" firstAttribute="leading" secondItem="YWf-hI-fho" secondAttribute="leadingMargin" id="bWf-S3-hAS"/>
-                                                <constraint firstAttribute="bottomMargin" secondItem="QH1-RW-beo" secondAttribute="bottom" constant="8" id="bgH-cd-cEb"/>
                                                 <constraint firstItem="3Y1-gG-V44" firstAttribute="top" secondItem="YWf-hI-fho" secondAttribute="topMargin" constant="2" id="cBP-sn-dIC"/>
                                                 <constraint firstItem="lht-yQ-Kwu" firstAttribute="leading" secondItem="3Y1-gG-V44" secondAttribute="trailing" constant="8" id="gFx-5u-xqD"/>
                                                 <constraint firstItem="lht-yQ-Kwu" firstAttribute="centerY" secondItem="YWf-hI-fho" secondAttribute="centerY" id="jb2-fI-8UH"/>
-                                                <constraint firstItem="QH1-RW-beo" firstAttribute="leading" secondItem="3Y1-gG-V44" secondAttribute="trailing" constant="8" id="uHC-aE-Nkx"/>
-                                                <constraint firstAttribute="trailingMargin" secondItem="QH1-RW-beo" secondAttribute="trailing" id="zVx-mU-Rj2"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="lht-yQ-Kwu" secondAttribute="trailing" id="lIs-Ja-QLT"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="name" destination="lht-yQ-Kwu" id="tyk-1h-QOg"/>
-                                            <outlet property="status" destination="QH1-RW-beo" id="T6n-sM-Pd8"/>
                                             <outlet property="userImage" destination="3Y1-gG-V44" id="MU2-My-vx7"/>
                                         </connections>
                                     </tableViewCell>
@@ -973,7 +969,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="342" height="105.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="alpaca" translatesAutoresizingMaskIntoConstraints="NO" id="xMs-D8-rti" customClass="UIImageViewRounded" customModule="ChatApp" customModuleProvider="target">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="userProfile" translatesAutoresizingMaskIntoConstraints="NO" id="xMs-D8-rti" customClass="UIImageViewRounded" customModule="ChatApp" customModuleProvider="target">
                                                     <rect key="frame" x="15" y="13" width="80" height="80"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="80" id="A6e-pR-0Cm"/>
@@ -981,6 +977,9 @@
                                                     </constraints>
                                                     <userDefinedRuntimeAttributes>
                                                         <userDefinedRuntimeAttribute type="boolean" keyPath="circular" value="YES"/>
+                                                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                            <real key="value" value="3"/>
+                                                        </userDefinedRuntimeAttribute>
                                                     </userDefinedRuntimeAttributes>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jRf-Ym-qsw">
@@ -1020,6 +1019,7 @@
                                             <outlet property="content" destination="ZdI-aa-7hb" id="wex-c6-anq"/>
                                             <outlet property="date" destination="Ubq-ei-JPj" id="yPz-XP-ntM"/>
                                             <outlet property="name" destination="jRf-Ym-qsw" id="hqr-iA-emX"/>
+                                            <outlet property="userImage" destination="xMs-D8-rti" id="JJ0-qb-P6C"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -1057,7 +1057,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="alpaca" width="1500" height="1518"/>
         <image name="background.jpg" width="1080" height="1920"/>
         <image name="camera" width="100" height="100"/>
         <image name="icons8-compose-24" width="24" height="24"/>
@@ -1067,6 +1066,7 @@
         <image name="icons8-password-40" width="40" height="40"/>
         <image name="icons8-send-letter-100" width="100" height="100"/>
         <image name="pic.jpeg" width="1000" height="1205"/>
+        <image name="userProfile" width="512" height="424"/>
         <image name="userProfile.png" width="512" height="424"/>
     </resources>
 </document>

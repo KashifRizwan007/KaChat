@@ -34,8 +34,7 @@ class SignUpRequest{
                 let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
                 changeRequest?.displayName = self.name
                 changeRequest?.commitChanges(completion: {(error) in
-                    if let err = error{
-                        print(err.localizedDescription)
+                    if let _ = error{
                         completion(nil,false)
                     }else{
                         self.createUser(image: image, completion: {(error) in
@@ -55,7 +54,7 @@ class SignUpRequest{
             self.picUpload.uploadProfileImage(image:img, completion: {(error,url) in
                 if let err = error{
                     completion(err)
-                }else if let Url = url{ self.db.collection("chatUsers").document(Auth.auth().currentUser!.uid).setData(["email":self.email,"name":self.name,"userType":"user","isActive":"true","image": Url.absoluteString], completion: {(error) in
+                }else if let Url = url{ self.db.collection("chatUsers").document(Auth.auth().currentUser!.uid).setData(["email":self.email,"name":self.name,"isActive":"false","image": Url.absoluteString], completion: {(error) in
                         if let err = error{
                             completion(err.localizedDescription)
                         }else{
@@ -65,7 +64,7 @@ class SignUpRequest{
                 }
             })
         }else{
-            self.db.collection("chatUsers").document(Auth.auth().currentUser!.uid).setData(["email":self.email,"name":self.name,"image":""], completion: {(error) in
+            self.db.collection("chatUsers").document(Auth.auth().currentUser!.uid).setData(["email":self.email,"name":self.name, "isActive":"false","image":""], completion: {(error) in
                 if let err = error{
                     completion(err.localizedDescription)
                 }else{
