@@ -9,8 +9,13 @@
 /* Begin PBXBuildFile section */
 		12091F4A2313E4FB00BEE9A5 /* textFieldDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12091F492313E4FA00BEE9A5 /* textFieldDesign.swift */; };
 		121F2B6D230EBBBC00AA6ED1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 121F2B6C230EBBBC00AA6ED1 /* GoogleService-Info.plist */; };
+		125A681023164E45002A9FB4 /* StaticLinker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 125A680F23164E45002A9FB4 /* StaticLinker.swift */; };
 		128C6A452306C9FB008A1746 /* messageBubbleOutgoingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 128C6A442306C9FB008A1746 /* messageBubbleOutgoingCell.swift */; };
 		12A8517222FABD5400F0EA57 /* messageBubbleIncomingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A8517122FABD5400F0EA57 /* messageBubbleIncomingCell.swift */; };
+		12D7B0C4231681170015F1B2 /* userCodeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D7B0C3231681170015F1B2 /* userCodeable.swift */; };
+		12D7B0C6231681F70015F1B2 /* user.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D7B0C5231681F70015F1B2 /* user.swift */; };
+		12D7B0C8231684460015F1B2 /* selectUserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D7B0C7231684460015F1B2 /* selectUserViewController.swift */; };
+		12D7B0CA231689C20015F1B2 /* userTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D7B0C9231689C20015F1B2 /* userTableViewCell.swift */; };
 		12E0D18E230BDB56008719D0 /* messageBubbleOutgoingPictureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E0D18D230BDB56008719D0 /* messageBubbleOutgoingPictureCell.swift */; };
 		12E0D190230BDF02008719D0 /* pic.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 12E0D18F230BDF02008719D0 /* pic.jpeg */; };
 		12E0D192230BECB8008719D0 /* messageBubbleIncomingPictureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E0D191230BECB8008719D0 /* messageBubbleIncomingPictureCell.swift */; };
@@ -27,7 +32,6 @@
 		12E0D1AE230BF5A8008719D0 /* loginRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E0D1AD230BF5A8008719D0 /* loginRequest.swift */; };
 		12E0D1B0230BF5B6008719D0 /* SignUpRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E0D1AF230BF5B5008719D0 /* SignUpRequest.swift */; };
 		12E0D1B2230C025D008719D0 /* userActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E0D1B1230C025D008719D0 /* userActivity.swift */; };
-		12E0D1C1230C4140008719D0 /* composeTextFieldDesignable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E0D1C0230C4140008719D0 /* composeTextFieldDesignable.swift */; };
 		12F2B7E3230D57B70073231A /* messageCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F2B7E2230D57B70073231A /* messageCodable.swift */; };
 		12F2B7E5230D591A0073231A /* AllChatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F2B7E4230D591A0073231A /* AllChatsViewController.swift */; };
 		12F2B7E7230D5BB50073231A /* message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F2B7E6230D5BB50073231A /* message.swift */; };
@@ -43,8 +47,13 @@
 /* Begin PBXFileReference section */
 		12091F492313E4FA00BEE9A5 /* textFieldDesign.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = textFieldDesign.swift; sourceTree = "<group>"; };
 		121F2B6C230EBBBC00AA6ED1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		125A680F23164E45002A9FB4 /* StaticLinker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticLinker.swift; sourceTree = "<group>"; };
 		128C6A442306C9FB008A1746 /* messageBubbleOutgoingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleOutgoingCell.swift; sourceTree = "<group>"; };
 		12A8517122FABD5400F0EA57 /* messageBubbleIncomingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleIncomingCell.swift; sourceTree = "<group>"; };
+		12D7B0C3231681170015F1B2 /* userCodeable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = userCodeable.swift; sourceTree = "<group>"; };
+		12D7B0C5231681F70015F1B2 /* user.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = user.swift; sourceTree = "<group>"; };
+		12D7B0C7231684460015F1B2 /* selectUserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = selectUserViewController.swift; sourceTree = "<group>"; };
+		12D7B0C9231689C20015F1B2 /* userTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = userTableViewCell.swift; sourceTree = "<group>"; };
 		12E0D18D230BDB56008719D0 /* messageBubbleOutgoingPictureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleOutgoingPictureCell.swift; sourceTree = "<group>"; };
 		12E0D18F230BDF02008719D0 /* pic.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = pic.jpeg; sourceTree = "<group>"; };
 		12E0D191230BECB8008719D0 /* messageBubbleIncomingPictureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleIncomingPictureCell.swift; sourceTree = "<group>"; };
@@ -62,7 +71,6 @@
 		12E0D1AF230BF5B5008719D0 /* SignUpRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpRequest.swift; sourceTree = "<group>"; };
 		12E0D1B1230C025D008719D0 /* userActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = userActivity.swift; sourceTree = "<group>"; };
 		12E0D1B9230C17C6008719D0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		12E0D1C0230C4140008719D0 /* composeTextFieldDesignable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = composeTextFieldDesignable.swift; sourceTree = "<group>"; };
 		12F2B7E2230D57B70073231A /* messageCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageCodable.swift; sourceTree = "<group>"; };
 		12F2B7E4230D591A0073231A /* AllChatsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllChatsViewController.swift; sourceTree = "<group>"; };
 		12F2B7E6230D5BB50073231A /* message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = message.swift; sourceTree = "<group>"; };
@@ -100,12 +108,12 @@
 				12E0D199230BF0C2008719D0 /* ButtonDesign.swift */,
 				12E0D197230BF0AD008719D0 /* UIImageViewRounded.swift */,
 				12091F492313E4FA00BEE9A5 /* textFieldDesign.swift */,
-				12E0D1C0230C4140008719D0 /* composeTextFieldDesignable.swift */,
+				12E0D18D230BDB56008719D0 /* messageBubbleOutgoingPictureCell.swift */,
 				12E0D191230BECB8008719D0 /* messageBubbleIncomingPictureCell.swift */,
 				128C6A442306C9FB008A1746 /* messageBubbleOutgoingCell.swift */,
-				12E0D18D230BDB56008719D0 /* messageBubbleOutgoingPictureCell.swift */,
 				12A8517122FABD5400F0EA57 /* messageBubbleIncomingCell.swift */,
 				12F2B7E8230D66170073231A /* chatsTableViewCell.swift */,
+				12D7B0C9231689C20015F1B2 /* userTableViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -129,8 +137,9 @@
 				12E0D1A2230BF384008719D0 /* SignUpViewController.swift */,
 				12E0D1A4230BF38B008719D0 /* PasswordResetViewController.swift */,
 				12E0D1A8230BF39C008719D0 /* InitialViewController.swift */,
-				326EBA912053387000F28A45 /* chatViewController.swift */,
 				12F2B7E4230D591A0073231A /* AllChatsViewController.swift */,
+				12D7B0C7231684460015F1B2 /* selectUserViewController.swift */,
+				326EBA912053387000F28A45 /* chatViewController.swift */,
 				12E0D1AA230BF4DA008719D0 /* RouteManager.swift */,
 			);
 			path = Controllers;
@@ -150,7 +159,10 @@
 			isa = PBXGroup;
 			children = (
 				12F2B7E2230D57B70073231A /* messageCodable.swift */,
+				12D7B0C3231681170015F1B2 /* userCodeable.swift */,
 				12F2B7E6230D5BB50073231A /* message.swift */,
+				12D7B0C5231681F70015F1B2 /* user.swift */,
+				125A680F23164E45002A9FB4 /* StaticLinker.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -357,6 +369,7 @@
 			files = (
 				12E0D1AB230BF4DA008719D0 /* RouteManager.swift in Sources */,
 				12E0D1A3230BF384008719D0 /* SignUpViewController.swift in Sources */,
+				125A681023164E45002A9FB4 /* StaticLinker.swift in Sources */,
 				12E0D1A9230BF39C008719D0 /* InitialViewController.swift in Sources */,
 				326EBA922053387000F28A45 /* chatViewController.swift in Sources */,
 				12091F4A2313E4FB00BEE9A5 /* textFieldDesign.swift in Sources */,
@@ -365,16 +378,19 @@
 				12E0D1A7230BF392008719D0 /* InitialLoginViewController.swift in Sources */,
 				12E0D1B2230C025D008719D0 /* userActivity.swift in Sources */,
 				12E0D19A230BF0C2008719D0 /* ButtonDesign.swift in Sources */,
+				12D7B0C4231681170015F1B2 /* userCodeable.swift in Sources */,
 				12F2B7E3230D57B70073231A /* messageCodable.swift in Sources */,
 				12E0D1B0230BF5B6008719D0 /* SignUpRequest.swift in Sources */,
 				326EBA902053387000F28A45 /* AppDelegate.swift in Sources */,
+				12D7B0C6231681F70015F1B2 /* user.swift in Sources */,
 				12E0D192230BECB8008719D0 /* messageBubbleIncomingPictureCell.swift in Sources */,
-				12E0D1C1230C4140008719D0 /* composeTextFieldDesignable.swift in Sources */,
 				12E0D1A5230BF38B008719D0 /* PasswordResetViewController.swift in Sources */,
 				128C6A452306C9FB008A1746 /* messageBubbleOutgoingCell.swift in Sources */,
 				12E0D1A1230BF37E008719D0 /* LoginViewController.swift in Sources */,
 				12F2B7E9230D66170073231A /* chatsTableViewCell.swift in Sources */,
+				12D7B0C8231684460015F1B2 /* selectUserViewController.swift in Sources */,
 				12F2B7E5230D591A0073231A /* AllChatsViewController.swift in Sources */,
+				12D7B0CA231689C20015F1B2 /* userTableViewCell.swift in Sources */,
 				12F2B7E7230D5BB50073231A /* message.swift in Sources */,
 				12E0D198230BF0AE008719D0 /* UIImageViewRounded.swift in Sources */,
 				12E0D1AE230BF5A8008719D0 /* loginRequest.swift in Sources */,

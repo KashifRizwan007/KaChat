@@ -16,12 +16,13 @@ class messageBubbleIncomingPictureCell: UITableViewCell {
     @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var bubbleLayerView: UIView!
     
-    var outgoingMessageLayer = CAShapeLayer()
+    var messageLayer = CAShapeLayer()
     
     override func awakeFromNib() {
-        super.awakeFromNib()
-        stackView.arrangedSubviews.last?.isHidden = true
-        stackView.arrangedSubviews.first?.isHidden = true
+        self.bubbleLayerView.layer.insertSublayer(messageLayer, below: self.message.layer)
+        self.stackView.arrangedSubviews.last?.isHidden = true
+        self.stackView.arrangedSubviews.first?.isHidden = true
+        messageLayer.fillColor = self.message.backgroundColor?.cgColor
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -57,16 +58,15 @@ class messageBubbleIncomingPictureCell: UITableViewCell {
         bezierPath.addCurve(to: CGPoint(x: width - 22, y: height), controlPoint1: CGPoint(x: width - 16, y: height), controlPoint2: CGPoint(x: width - 19, y: height))
         bezierPath.close()
         
-        let incomingMessageLayer = CAShapeLayer()
-        incomingMessageLayer.path = bezierPath.cgPath
-        incomingMessageLayer.frame = CGRect(x: 0,
+        messageLayer.path = bezierPath.cgPath
+        messageLayer.frame = CGRect(x: 0,
                                             y: 0,
                                             width: width,
                                             height: height)
         
         message.contentMode = .scaleAspectFill
         message.clipsToBounds = true
-        message.layer.mask = incomingMessageLayer
+        message.layer.mask = messageLayer
     }
 
 }

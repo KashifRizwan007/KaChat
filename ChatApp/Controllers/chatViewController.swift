@@ -26,7 +26,6 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
     @IBOutlet weak var messageField: GrowingTextView!
     private var userActivityObj = user_activity()
     @IBOutlet weak var containerView: UIView!
-    private let refreshControl = UIRefreshControl()
     private var bringMore = false
     private var selectedIndex:IndexPath!
     private var initiate = false
@@ -34,11 +33,9 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
     @IBOutlet weak var messageTableView: UITableView!
     var cellHeight:CGFloat!
     var bottomConstraint: NSLayoutConstraint?
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        IQKeyboardManager.shared().isEnableAutoToolbar = true
-        IQKeyboardManager.shared().isEnabled = true
-    }
+    var alertView: UIAlertController!
+    var progressDownload: UIProgressView!
+    private let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,13 +44,19 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
         self.messageTableView.delegate = self
         self.messageTableView.dataSource = self
         self.configureUI()
+        self.chatListner()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        IQKeyboardManager.shared().isEnableAutoToolbar = true
+        IQKeyboardManager.shared().isEnabled = true
+    }
+    
     private func configureUI(){
         self.messageTableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         self.messageTableView.refreshControl = self.refreshControl
         self.messageTableView.estimatedRowHeight = 100
         self.refreshControl.addTarget(self, action: #selector(loadData), for: .valueChanged)
-        self.chatListner()
         bottomConstraint = NSLayoutConstraint(item: containerView!, attribute: .bottom, relatedBy: .equal, toItem: view.safeAreaLayoutGuide, attribute: .bottom, multiplier: 1, constant: 0)
         view.addConstraint(bottomConstraint!)
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -88,21 +91,9 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
     @IBAction func sendMessageBtn(_ sender: Any) {
         if let m = self.messageField.text{
             let date = String(Date().timeIntervalSince1970)
-            let msg = message(date: date, message: m, rDel: "false", rid: recvId, rName: recvName, sDel: "false", sid: uid!, sName: uName!, type: "txt", messageId: "", chatId: chatId)
-            //self.msgs.append(msg)
-            //self.messageTableView.beginUpdates()
-            //self.messageTableView.insertRows(at: [IndexPath.init(row: self.msgs.count - 1, section: 0)], with: .automatic)
-            //self.messageTableView.endUpdates()
-//            let indexPath = IndexPath(item: self.msgs.count - 1, section: 0)
-//            self.messageTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
             self.userActivityObj.sendMessage(formattedDate: date, sid: self.uid!, rid: recvId!, sName: uName!, rName: recvName!, _message: m, completion: {(error,msg) in
                 if let err = error{
                     print(err)
-                }else if let m = msg{
-                    if let index = self.msgs.firstIndex(where: {$0.date == m.date}){
-                        print("isfbvisnvos")
-                        self.msgs[index].messageId = m.messageId
-                    }
                 }
             })
         }
@@ -132,6 +123,31 @@ extension chatViewController{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.selectedIndex = indexPath
+        if msgs[indexPath.row].sid == uid{
+            if "pic" == msgs[indexPath.row].type {
+                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleIncomingPictureCell
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+            }else{
+                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleIncomingCell
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+            }
+        }else{
+            if "pic" == msgs[indexPath.row].type {
+                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleIncomingPictureCell
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+            }else{
+                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleOutgoingCell
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+            }
+        }
         self.messageTableView.beginUpdates()
         self.messageTableView.endUpdates()
     }
@@ -145,17 +161,6 @@ extension chatViewController{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let myDateFormatter = DateFormatter()
-        myDateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ"
-        let d = myDateFormatter.string(from: Date(timeIntervalSince1970: TimeInterval(self.msgs[indexPath.row].date) as! TimeInterval))
-        let date = myDateFormatter.date(from: d)
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.doesRelativeDateFormatting = true
-        
-        let dateString = dateFormatter.string(from: date!)
-        
         if msgs[indexPath.row].sid == uid{
             if "pic" == msgs[indexPath.row].type {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "outgoingPic") as! messageBubbleIncomingPictureCell
@@ -163,8 +168,9 @@ extension chatViewController{
                     cell.stackView.arrangedSubviews.last?.isHidden = false
                     cell.stackView.arrangedSubviews.first?.isHidden = false
                 }
-                cell.date.text = dateString
-                cell.status.text = self.getPastTime(for: date!)
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
                 cell.showIncomingMessage(cellWidth: self.view.bounds.width)
                 return cell
             }else{
@@ -174,8 +180,9 @@ extension chatViewController{
                     cell.stackView.arrangedSubviews.first?.isHidden = false
                 }
                 let msg = msgs[indexPath.row].message
-                cell.date.text = dateString
-                cell.status.text = self.getPastTime(for: date!)
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
                 cell.message.text = msg
                 cell.message.textColor = .black
                 cell.showIncomingMessage(text: msg, cellWidth: self.view.bounds.width)
@@ -188,8 +195,9 @@ extension chatViewController{
                     cell.stackView.arrangedSubviews.last?.isHidden = false
                     cell.stackView.arrangedSubviews.first?.isHidden = false
                 }
-                cell.date.text = dateString
-                cell.status.text = self.getPastTime(for: date!)
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
                 cell.showIncomingMessage(cellWidth: self.view.bounds.width)
                 return cell
             }else{
@@ -199,8 +207,9 @@ extension chatViewController{
                     cell.stackView.arrangedSubviews.first?.isHidden = false
                 }
                 let msg = msgs[indexPath.row].message
-                cell.date.text = dateString
-                cell.status.text = self.getPastTime(for: date!)
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
                 cell.message.text = msg
                 cell.showOutgoingMessage(text: msg, cellWidth: self.view.bounds.width)
                 return cell
@@ -208,7 +217,36 @@ extension chatViewController{
         }
     }
 }
+
 extension chatViewController{
+    
+    func showSendProgress(){
+        self.alertView = UIAlertController(title: "Sending", message: "0%", preferredStyle: .alert)
+        alertView.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {(_) in
+            staticLinker.imageUploadProgress.cancel()
+        }))
+        self.progressDownload = UIProgressView(progressViewStyle: .default)
+        self.progressDownload.setProgress(0.0, animated: true)
+        self.progressDownload.frame = CGRect(x: 10, y: 70, width: 250, height: 0)
+        alertView.view.addSubview(progressDownload)
+        present(alertView, animated: true, completion: nil)
+        
+        staticLinker.imageUploadProgress.observe(.progress) { snapshot in
+            if let error = snapshot.error{
+                self.alertView.title = "Error"
+                self.alertView.message = error.localizedDescription
+                self.dismiss(animated: true, completion: nil)
+            }else{
+                self.progressDownload.setProgress(Float(snapshot.progress!.fractionCompleted), animated: true)
+                self.alertView.message = String(Int(snapshot.progress!.fractionCompleted * 100))
+                if snapshot.progress!.isFinished{
+                    staticLinker.imageUploadProgress.removeAllObservers()
+                    self.dismiss(animated: true, completion: nil)
+                }
+            }
+            
+        }
+    }
     
     func chatListner(){
         db.collection("messages").whereField("chatId", isEqualTo: self.chatId!).order(by: "date", descending: true).limit(to: 5).addSnapshotListener({(snapshot, err) in
@@ -223,7 +261,6 @@ extension chatViewController{
                     let decoder = JSONDecoder()
                     do
                     {
-                        print("devdevsdwsvdf")
                         temp = try decoder.decode(messageCodable.self, from: jsonData)
                         if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
                             let newMsg = message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!)
@@ -245,8 +282,10 @@ extension chatViewController{
                 }
                 if self.initiate == false{
                     self.messageTableView.reloadData()
-                    self.lastDocumentSnapshot = snapshot!.documents.last
-                    self.initiate = true
+                    if let lastDocIndex = snapshot!.documents.last{
+                        self.lastDocumentSnapshot = lastDocIndex
+                        self.initiate = true
+                    }
                 }else{
                     let indexPath = IndexPath(item: self.msgs.count - 1, section: 0)
                     self.messageTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
@@ -256,132 +295,41 @@ extension chatViewController{
     }
     
     func bringMoreMessages(){
-        db.collection("messages").whereField("chatId", isEqualTo: self.chatId!).order(by: "date", descending: true).start(afterDocument: lastDocumentSnapshot).limit(to: 20).getDocuments(completion: {(snapshot, err) in
-            if let err = err {
-                let alert = UIAlertController(title: "Alert", message: err.localizedDescription, preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            } else {
-                var temp:messageCodable
-                for documents in snapshot!.documents{
-                    let jsonData = try! JSONSerialization.data(withJSONObject: documents.data(), options: JSONSerialization.WritingOptions.prettyPrinted)
-                    let decoder = JSONDecoder()
-                    do
-                    {
-                        temp = try decoder.decode(messageCodable.self, from: jsonData)
-                        if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
-                            let newMsg = message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!)
+        if let lastDocSnap = self.lastDocumentSnapshot{
+            db.collection("messages").whereField("chatId", isEqualTo: self.chatId!).order(by: "date", descending: true).start(afterDocument: lastDocSnap).limit(to: 20).getDocuments(completion: {(snapshot, err) in
+                self.refreshControl.endRefreshing()
+                if let err = err {
+                    let alert = UIAlertController(title: "Alert", message: err.localizedDescription, preferredStyle: UIAlertController.Style.alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                    self.present(alert, animated: true, completion: nil)
+                } else {
+                    var temp:messageCodable
+                    for documents in snapshot!.documents{
+                        let jsonData = try! JSONSerialization.data(withJSONObject: documents.data(), options: JSONSerialization.WritingOptions.prettyPrinted)
+                        let decoder = JSONDecoder()
+                        do
+                        {
+                            temp = try decoder.decode(messageCodable.self, from: jsonData)
+                            if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
+                                let newMsg = message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!)
                                 self.msgs.insert(newMsg,at: 0)
-                            self.messageTableView.beginUpdates()
-                            self.messageTableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
-                            self.messageTableView.endUpdates()
+                                self.messageTableView.beginUpdates()
+                                self.messageTableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
+                                if self.selectedIndex != nil{
+                                    self.selectedIndex.row += 1
+                                }
+                                self.messageTableView.endUpdates()
+                            }
+                        }
+                        catch{
+                            print(error.localizedDescription)
                         }
                     }
-                    catch{
-                        print(error.localizedDescription)
-                    }
-                    self.refreshControl.endRefreshing()
                 }
-            }
-        })
-    }
-    
-//    func bringAllMessages( completion: @escaping (_ error: String?) -> ()){
-//        fetchingMore = true
-//
-//        var query: Query!
-//
-//        if self.msgs.count == 0 {
-//            query = db.collection("messages").whereField("chatId", isEqualTo: self.chatId!).order(by: "date", descending: true).limit(to: 20)
-//        } else {
-//            query = db.collection("messages").whereField("chatId", isEqualTo: self.chatId!).order(by: "date", descending: true).start(afterDocument: lastDocumentSnapshot).limit(to: 20)
-//            self.bringMore = true
-//        }
-//
-//        query.getDocuments { (snapshot, err) in
-//            if let err = err {
-//                completion(err.localizedDescription)
-//            } else if snapshot!.isEmpty {
-//                self.fetchingMore = false
-//                completion(nil)
-//            } else {
-//                var temp:messageCodable
-//                for documents in snapshot!.documents{
-//                    let jsonData = try! JSONSerialization.data(withJSONObject: documents.data(), options: JSONSerialization.WritingOptions.prettyPrinted)
-//                    let decoder = JSONDecoder()
-//                    do
-//                    {
-//                        temp = try decoder.decode(messageCodable.self, from: jsonData)
-//                        if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
-//                            self.msgs.insert(message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!), at: 0)
-//                            self.messageTableView.beginUpdates()
-//                            self.messageTableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)
-//                            self.messageTableView.endUpdates()
-//                        }
-//                    }
-//                    catch{
-//                        print(error.localizedDescription)
-//                    }
-//                }
-//                if self.bringMore == false{
-//                    self.messageTableView.reloadData()
-//                }
-//
-//                self.fetchingMore = false
-//                self.lastDocumentSnapshot = snapshot!.documents.last
-//                completion(nil)
-//            }
-//        }
-//    }
-}
-extension chatViewController{
-    func getPastTime(for date : Date) -> String {
-        
-        var secondsAgo = Int(Date().timeIntervalSince(date))
-        if secondsAgo < 0 {
-            secondsAgo = secondsAgo * (-1)
-        }
-        
-        let minute = 60
-        let hour = 60 * minute
-        let day = 24 * hour
-        let week = 7 * day
-        
-        if secondsAgo < minute  {
-            if secondsAgo < 2{
-                return "just now"
-            }else{
-                return "\(secondsAgo) secs ago"
-            }
-        } else if secondsAgo < hour {
-            let min = secondsAgo/minute
-            if min == 1{
-                return "\(min) min ago"
-            }else{
-                return "\(min) mins ago"
-            }
-        } else if secondsAgo < day {
-            let hr = secondsAgo/hour
-            if hr == 1{
-                return "\(hr) hr ago"
-            } else {
-                return "\(hr) hrs ago"
-            }
-        } else if secondsAgo < week {
-            let day = secondsAgo/day
-            if day == 1{
-                return "\(day) day ago"
-            }else{
-                return "\(day) days ago"
-            }
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM dd, hh:mm a"
-            formatter.locale = Locale(identifier: "en_US")
-            let strDate: String = formatter.string(from: date)
-            return strDate
+            })
+        }else{
+            self.refreshControl.endRefreshing()
         }
     }
-
 }
 

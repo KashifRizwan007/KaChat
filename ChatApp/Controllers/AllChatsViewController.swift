@@ -9,7 +9,12 @@
 import UIKit
 import Firebase
 
-class AllChatsViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
+class AllChatsViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,prepareNewChat {
+    func fillFields(rid: String, rName: String, performSegue: Bool) {
+        self.rid = rid
+        self.rName = rName
+        self.performSegue = true
+    }
     
     @IBOutlet weak var chatsTableView: UITableView!
     
@@ -17,7 +22,10 @@ class AllChatsViewController: UIViewController,UITableViewDelegate,UITableViewDa
     private var msg = "Loading..."
     private var chatDataList:[message]!
     private var uid = Auth.auth().currentUser?.uid
-    private var selectedIndex = -1
+    private var selectedUser:user!
+    private var rid:String!
+    private var rName:String!
+    var performSegue = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +33,17 @@ class AllChatsViewController: UIViewController,UITableViewDelegate,UITableViewDa
         self.chatsTableView.dataSource = self
         self.chatsTableView.rowHeight = UITableView.automaticDimension
         self.chatListner()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if performSegue{
+            self.performSegue(withIdentifier: "toMessages", sender: nil)
+            self.performSegue = false
+        }
+    }
+    
+    @IBAction func toNewChat(_ sender: Any) {
+        self.performSegue(withIdentifier: "toNewChat", sender: nil)
     }
     
     func chatListner(){
@@ -47,7 +66,6 @@ class AllChatsViewController: UIViewController,UITableViewDelegate,UITableViewDa
             }
         })
     }
-    
 }
 
 extension AllChatsViewController{
@@ -56,25 +74,18 @@ extension AllChatsViewController{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let myDateFormatter = DateFormatter()
-        myDateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZ"
-        print(self.chatDataList[indexPath.row].date)
-        let d = myDateFormatter.string(from: Date(timeIntervalSince1970: TimeInterval(self.chatDataList[indexPath.row].date) as! TimeInterval))
-        let date = myDateFormatter.date(from: d)
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "chatCell") as! chatsTableViewCell
         if self.chatDataList[indexPath.row].sid == uid {
             cell.name.text = self.chatDataList[indexPath.row].rName
         }else{
             cell.name.text = self.chatDataList[indexPath.row].sName
         }
-        cell.date.text = self.getPastTime(for: date!)
+        cell.date.text = staticLinker.getPastTime(for: staticLinker.getPastStatus(date: self.chatDataList[indexPath.row].date).0)
         if self.chatDataList[indexPath.row].type == "txt"{
             cell.content.text = self.chatDataList[indexPath.row].message
         }else{
             cell.content.text = "📷 Photo"
         }
-        
         return cell
     }
     
@@ -95,54 +106,32 @@ extension AllChatsViewController{
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        var chatId = String()
         if segue.identifier == "toMessages"{
             let messagesVC = segue.destination as! chatViewController
-            var chatId = String()
-            if self.chatDataList[self.selectedIndex].sid > self.chatDataList[self.selectedIndex].rid{
-                chatId = self.chatDataList[self.selectedIndex].sid + self.chatDataList[self.selectedIndex].rid
+            if self.uid! > self.rid{
+                chatId = self.uid! + self.rid
             }else{
-                chatId = self.chatDataList[self.selectedIndex].rid + self.chatDataList[self.selectedIndex].sid
+                chatId = self.rid + self.uid!
             }
             messagesVC.chatId = chatId
-            if self.chatDataList[self.selectedIndex].rid == self.uid{
-                messagesVC.recvName = self.chatDataList[self.selectedIndex].sName
-                messagesVC.recvId = self.chatDataList[self.selectedIndex].sid
-            }else{
-                messagesVC.recvName = self.chatDataList[self.selectedIndex].rName
-                messagesVC.recvId = self.chatDataList[self.selectedIndex].rid
-            }
+            messagesVC.recvName = self.rName
+            messagesVC.recvId = self.rid
+        }else if segue.identifier == "toNewChat"{
+            let selectUserVC = segue.destination as! selectUserViewController
+            selectUserVC.fillNewChatDel = self
         }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.selectedIndex = indexPath.row
+        if self.chatDataList![indexPath.row].rid == self.uid{
+            self.rName = self.chatDataList[indexPath.row].sName
+            self.rid = self.chatDataList![indexPath.row].sid
+        }else{
+            self.rName = self.chatDataList[indexPath.row].rName
+            self.rid = self.chatDataList[indexPath.row].rid
+        }
         self.performSegue(withIdentifier: "toMessages", sender: nil)
         self.chatsTableView.deselectRow(at: indexPath, animated: true)
-    }
-    
-    func getPastTime(for date : Date) -> String {
-        
-        var secondsAgo = Int(Date().timeIntervalSince(date))
-        if secondsAgo < 0 {
-            secondsAgo = secondsAgo * (-1)
-        }
-        
-        let minute = 60
-        let hour = 60 * minute
-        let day = 24 * hour
-        
-        if secondsAgo < minute || secondsAgo < hour || secondsAgo < day{
-            let formatter = DateFormatter()
-            formatter.dateFormat = "h:mm a"
-            formatter.locale = Locale(identifier: "en_PK")
-            let strDate: String = formatter.string(from: date)
-            return strDate
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            formatter.locale = Locale(identifier: "en_PK")
-            let strDate: String = formatter.string(from: date)
-            return strDate
-        }
     }
 }

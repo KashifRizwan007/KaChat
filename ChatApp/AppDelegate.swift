@@ -14,23 +14,26 @@ import Firebase
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    //lazy var userActivityObj = user_activity()
+    var userActivityObj:user_activity!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
+        self.userActivityObj = user_activity()
         
-        /*let userLoginStatus = UserDefaults.standard.bool(forKey: "isUserLoggedIn")
-        
+        let userLoginStatus = UserDefaults.standard.bool(forKey: "isUserLoggedIn")
         if userLoginStatus, let _ = Auth.auth().currentUser{
             self.userActivityObj.isUserActive(isActive: true, completion: {(error) in
-                let navigationController = application.windows[0].rootViewController as! UINavigationController
-                let activeViewCont = navigationController.visibleViewController
-                let alert = UIAlertController(title: "Alert", message: error, preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                activeViewCont!.present(alert, animated: true, completion: nil)
+                if let err = error{
+                    let navigationController = application.windows[0].rootViewController as! UINavigationController
+                    let activeViewCont = navigationController.visibleViewController
+                    let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                    activeViewCont!.present(alert, animated: true, completion: nil)
+                }
             })
+            self.userActivityObj = user_activity()
             RouteManager.shared.showHome()
-        }*/
+        }
         return true
     }
 
@@ -42,10 +45,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        self.userActivityObj = user_activity()
+        self.userActivityObj.isUserActive(isActive: false, completion: {(error) in
+            if let err = error{
+                let navigationController = application.windows[0].rootViewController as! UINavigationController
+                let activeViewCont = navigationController.visibleViewController
+                let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                activeViewCont!.present(alert, animated: true, completion: nil)
+            }
+        })
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        self.userActivityObj = user_activity()
+        self.userActivityObj.isUserActive(isActive: true, completion: {(error) in
+            if let err = error{
+                let navigationController = application.windows[0].rootViewController as! UINavigationController
+                let activeViewCont = navigationController.visibleViewController
+                let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                activeViewCont!.present(alert, animated: true, completion: nil)
+            }
+        })
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -54,13 +77,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-        /*self.userActivityObj.isUserActive(isActive: false, completion: {(error) in
-            let navigationController = application.windows[0].rootViewController as! UINavigationController
-            let activeViewCont = navigationController.visibleViewController
-            let alert = UIAlertController(title: "Alert", message: error, preferredStyle: UIAlertController.Style.alert)
-            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-            activeViewCont!.present(alert, animated: true, completion: nil)
-        })*/
+        self.userActivityObj = user_activity()
+        self.userActivityObj.isUserActive(isActive: false, completion: {(error) in
+            if let err = error{
+                let navigationController = application.windows[0].rootViewController as! UINavigationController
+                let activeViewCont = navigationController.visibleViewController
+                let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                activeViewCont!.present(alert, animated: true, completion: nil)
+            }
+        })
     }
 
 

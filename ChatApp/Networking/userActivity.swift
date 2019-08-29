@@ -17,10 +17,14 @@ struct user_activity{
     let uid = Auth.auth().currentUser?.uid
     
     func isUserActive(isActive: Bool, completion: @escaping (_ error: String?) -> ()){
-        self.db.collection("chatUser").document(Auth.auth().currentUser!.uid).setData(["isActive":"true"], completion: {(error) in
+        print("odjnfovenwfvoen")
+        self.db.collection("chatUsers").document(self.uid!).updateData(["isActive":String(isActive)], completion: {(error) in
+            print("odjnfovenwfvoen")
             if let err = error{
+                print(err)
                 completion(err.localizedDescription)
             }else{
+                print(self.uid)
                 completion(nil)
             }
         })
@@ -98,7 +102,7 @@ struct user_activity{
     func uploadImage(imageId:String, image:UIImage?, completion: @escaping (_ error: String?,_ url:URL?) -> ()){
         let data = image!.jpegData(compressionQuality: 1.0)
         let imageUpload = Storage.storage().reference().child("Images/\(imageId))/profilePic.jpg")
-        _ = imageUpload.putData(data!, metadata: nil) { (metadata, error) in
+        staticLinker.imageUploadProgress = imageUpload.putData(data!, metadata: nil) { (metadata, error) in
             if let err = error {
                 completion(err.localizedDescription,nil)
             }else{
@@ -146,6 +150,36 @@ struct user_activity{
                         temp = try decoder.decode(messageCodable.self, from: jsonData)
                         if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
                             DataArray.append(message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!))
+                        }
+                    }
+                    catch{
+                        print(error.localizedDescription)
+                    }
+                }
+                if DataArray.count == 0{
+                    completion(nil,nil)
+                }else{
+                    completion(nil,DataArray)
+                }
+            }
+        })
+    }
+    
+    func getAllUsers(completion: @escaping (_ error: String?,_ messages:[user]?) -> ()){
+        staticLinker.listnerRef = self.db.collection("chatUsers").addSnapshotListener({(snapshot, error) in
+            if let err = error{
+                completion(err.localizedDescription,nil)
+            }else{
+                var temp:userCodable
+                var DataArray = [user]()
+                for documents in snapshot!.documents{
+                    let jsonData = try! JSONSerialization.data(withJSONObject: documents.data(), options: JSONSerialization.WritingOptions.prettyPrinted)
+                    let decoder = JSONDecoder()
+                    do
+                    {
+                        temp = try decoder.decode(userCodable.self, from: jsonData)
+                        if documents.documentID != self.uid{
+                            DataArray.append(user(email: temp.email!, image: temp.image!, isActive: temp.isActive!, name: temp.name!, userType: temp.userType!, userId: documents.documentID))
                         }
                     }
                     catch{

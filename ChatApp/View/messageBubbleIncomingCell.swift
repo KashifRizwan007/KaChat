@@ -15,15 +15,17 @@ class messageBubbleIncomingCell: UITableViewCell {
     @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var bubbleLayerView: UIView!
     
-    var outgoingMessageLayer = CAShapeLayer()
+    var messageLayer = CAShapeLayer()
     
     override func awakeFromNib() {
-        self.bubbleLayerView.layer.insertSublayer(outgoingMessageLayer, below: self.message.layer)
+        self.bubbleLayerView.layer.insertSublayer(messageLayer, below: self.message.layer)
         self.stackView.arrangedSubviews.last?.isHidden = true
         self.stackView.arrangedSubviews.first?.isHidden = true
+        messageLayer.fillColor = self.message.backgroundColor?.cgColor
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
+        
         UIView.animate(withDuration: 0.6,
                                    delay: 0,
                                    usingSpringWithDamping: 1,
@@ -68,16 +70,13 @@ class messageBubbleIncomingCell: UITableViewCell {
         bezierPath.addCurve(to: CGPoint(x: width - 22, y: height), controlPoint1: CGPoint(x: width - 16, y: height), controlPoint2: CGPoint(x: width - 19, y: height))
         bezierPath.close()
         
-        outgoingMessageLayer.path = bezierPath.cgPath
+        messageLayer.path = bezierPath.cgPath
         
         self.bubbleLayerView.frame = CGRect(x: 0.0, y: 0.0, width: cellWidth, height: height + 5)
         
-        outgoingMessageLayer.frame = CGRect(x: self.bubbleLayerView.frame.width - width - 20,
+        messageLayer.frame = CGRect(x: self.bubbleLayerView.frame.width - width - 20,
                                             y: self.bubbleLayerView.frame.height/2 - height/2 + 2,
                                             width: width,
                                             height: height)
-        outgoingMessageLayer.fillColor = UIColor(red: 0.09, green: 0.54, blue: 0.4, alpha: 1).cgColor
-        
-        self.bubbleLayerView.layer.insertSublayer(outgoingMessageLayer, below: self.message.layer)
     }
 }

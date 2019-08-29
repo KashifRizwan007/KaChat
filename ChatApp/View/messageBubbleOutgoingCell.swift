@@ -15,20 +15,23 @@ class messageBubbleOutgoingCell: UITableViewCell {
     @IBOutlet weak var status: UILabel!
     @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var bubbleLayerView: UIView!
-
+    
+    var messageLayer = CAShapeLayer()
+    
     override func awakeFromNib() {
-        super.awakeFromNib()
-        stackView.arrangedSubviews.last?.isHidden = true
-        stackView.arrangedSubviews.first?.isHidden = true
+        self.bubbleLayerView.layer.insertSublayer(messageLayer, below: self.message.layer)
+        self.stackView.arrangedSubviews.last?.isHidden = true
+        self.stackView.arrangedSubviews.first?.isHidden = true
+        self.messageLayer.fillColor = self.message.backgroundColor?.cgColor
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         
-        UIView.animate(withDuration: 0.5,
+        UIView.animate(withDuration: 0.6,
                        delay: 0,
                        usingSpringWithDamping: 1,
                        initialSpringVelocity: 1,
-                       options: UIView.AnimationOptions.curveEaseIn,
+                       options: .showHideTransitionViews,
                        animations: { () -> Void in
                         self.stackView.arrangedSubviews.last?.isHidden = !selected
                         self.stackView.arrangedSubviews.first?.isHidden = !selected
@@ -53,7 +56,7 @@ class messageBubbleOutgoingCell: UITableViewCell {
         label.frame.size = CGSize(width: ceil(boundingBox.width),
                                   height: ceil(boundingBox.height))
         
-        let bubbleSize = CGSize(width: label.frame.width + 33,
+        let bubbleSize = CGSize(width: label.frame.width + 28,
                                 height: label.frame.height + 18)
         
         let width = bubbleSize.width
@@ -74,20 +77,14 @@ class messageBubbleOutgoingCell: UITableViewCell {
         bezierPath.addCurve(to: CGPoint(x: 22, y: height), controlPoint1: CGPoint(x: 16, y: height), controlPoint2: CGPoint(x: 19, y: height))
         bezierPath.close()
         
-        let incomingMessageLayer = CAShapeLayer()
-        incomingMessageLayer.path = bezierPath.cgPath
+        messageLayer.path = bezierPath.cgPath
         
-        self.frame = CGRect(x: 0.0, y: 0.0, width: cellWidth, height: height + 5)
+        self.bubbleLayerView.frame = CGRect(x: 0.0, y: 0.0, width: cellWidth, height: height + 5)
         
-        incomingMessageLayer.frame = CGRect(x: 20,
-                                            y: self.frame.height/2 - height/2 + 2,
+        messageLayer.frame = CGRect(x: 20,
+                                            y: self.bubbleLayerView.frame.height/2 - height/2 + 2,
                                             width: 68,
                                             height: 17)
-        incomingMessageLayer.fillColor = UIColor(red: 0.09, green: 0.54, blue: 1, alpha: 1).cgColor
-        
-        self.layer.addSublayer(incomingMessageLayer)
-        
-        self.bubbleLayerView.layer.insertSublayer(incomingMessageLayer, below: self.message.layer)
     }
 
 }

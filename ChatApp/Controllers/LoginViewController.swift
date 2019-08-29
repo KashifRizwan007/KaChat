@@ -59,8 +59,6 @@ class LoginViewController: UIViewController,signInFill {
         hidden = true
         self.loader.startAnimating()
         self.signBtnOut.isEnabled = false
-        self.emailField.text = "user1@gmail.com"
-        self.passwordField.text = "qwerty"
         if let email = self.emailField.text, let password = self.passwordField.text{
             self.loginObj = loginRequest(email: email, password: password)
             self.loginObj.loginRequest(completion: {(error, isLogin) in
