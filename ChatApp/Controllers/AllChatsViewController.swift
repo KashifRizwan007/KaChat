@@ -186,7 +186,6 @@ extension AllChatsViewController{
     
     func activeListner(){
         self.getChatsObj.getAllUsers(completion: {(error,users) in
-            print("isdbvfksnvsj")
             if let _ = error{
             }else if let users = users{
                 self.ActiveUsers = [String]()

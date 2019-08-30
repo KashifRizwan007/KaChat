@@ -11,6 +11,7 @@ import Firebase
 import IQKeyboardManager
 import GrowingTextView
 import SDWebImage
+import YPImagePicker
 
 class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
     
@@ -122,8 +123,7 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
     @IBAction func sendMessageBtn(_ sender: Any) {
         if let m = self.messageField.text{
             self.messageField.text = ""
-            let date = String(Date().timeIntervalSince1970)
-            self.userActivityObj.sendMessage(formattedDate: date, sid: self.uid!, rid: recvId!, sName: uName!, rName: recvName!, _message: m, completion: {(error,msg) in
+            self.userActivityObj.sendMessage(sid: self.uid!, rid: recvId!, sName: uName!, rName: recvName!, _message: m, completion: {(error,msg) in
                 if let err = error{
                     let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
@@ -131,6 +131,42 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
                 }
             })
         }
+    }
+    @IBAction func camera(_ sender: Any) {
+        var config = YPImagePickerConfiguration()
+        config.library.mediaType = .photo
+        config.onlySquareImagesFromCamera = false
+        config.shouldSaveNewPicturesToAlbum = false
+        config.startOnScreen = .photo
+        config.screens = [.library, .photo]
+        config.wordings.cameraTitle = "Camera"
+        config.wordings.libraryTitle = "Photos"
+        config.showsPhotoFilters = true
+        config.wordings.save = "Send"
+        config.showsCrop = .rectangle(ratio: 1.0)
+        
+        var imagePicked = false
+        
+        let picker = YPImagePicker(configuration: config)
+    
+        picker.didFinishPicking { [unowned picker] items, _ in
+            if let img = items.singlePhoto?.image{
+                self.userActivityObj.sendPicture(sid: self.uid!, rid: self.recvId!, sName: self.uName!, rName: self.recvName, _message: img, completion: {(error,msg) in
+                    if let err = error{
+                        let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
+                        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                        self.present(alert, animated: true, completion: nil)
+                    }
+                })
+                imagePicked = true
+            }
+            picker.dismiss(animated: true, completion: {() in
+                if imagePicked{
+                    self.showSendProgress()
+                }
+            })
+        }
+        present(picker, animated: true, completion: nil)
     }
     @objc func loadData(){
         self.refreshControl.beginRefreshing()
@@ -158,7 +194,7 @@ extension chatViewController{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.selectedIndex = indexPath
         if msgs[indexPath.row].sid == uid{
-            if "pic" == msgs[indexPath.row].type {
+            if msgs[indexPath.row].type == "img" {
                 let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleIncomingPictureCell
                 let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
                 cell.date.text = data.1
@@ -170,8 +206,8 @@ extension chatViewController{
                 cell.status.text = staticLinker.getPastTime(for: data.0)
             }
         }else{
-            if "pic" == msgs[indexPath.row].type {
-                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleIncomingPictureCell
+            if msgs[indexPath.row].type == "img" {
+                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleOutgoingPictureCell
                 let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
                 cell.date.text = data.1
                 cell.status.text = staticLinker.getPastTime(for: data.0)
@@ -196,7 +232,7 @@ extension chatViewController{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if msgs[indexPath.row].sid == uid{
-            if "pic" == msgs[indexPath.row].type {
+            if "img" == msgs[indexPath.row].type {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "outgoingPic") as! messageBubbleIncomingPictureCell
                 if self.selectedIndex == indexPath{
                     cell.stackView.arrangedSubviews.last?.isHidden = false
@@ -205,6 +241,7 @@ extension chatViewController{
                 let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
                 cell.date.text = data.1
                 cell.status.text = staticLinker.getPastTime(for: data.0)
+                cell.message!.sd_setImage(with: URL(string: msgs[indexPath.row].message), completed: nil)
                 cell.showIncomingMessage(cellWidth: self.view.bounds.width)
                 return cell
             }else{
@@ -223,8 +260,8 @@ extension chatViewController{
                 return cell
             }
         }else{
-            if "pic" == msgs[indexPath.row].type {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "incomingPic") as! messageBubbleIncomingPictureCell
+            if "img" == msgs[indexPath.row].type {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "incomingPic") as! messageBubbleOutgoingPictureCell
                 if self.selectedIndex == indexPath{
                     cell.stackView.arrangedSubviews.last?.isHidden = false
                     cell.stackView.arrangedSubviews.first?.isHidden = false
@@ -232,6 +269,7 @@ extension chatViewController{
                 let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
                 cell.date.text = data.1
                 cell.status.text = staticLinker.getPastTime(for: data.0)
+                cell.message!.sd_setImage(with: URL(string: msgs[indexPath.row].message), completed: nil)
                 cell.showIncomingMessage(cellWidth: self.view.bounds.width)
                 return cell
             }else{
@@ -258,12 +296,14 @@ extension chatViewController{
         self.alertView = UIAlertController(title: "Sending", message: "0%", preferredStyle: .alert)
         alertView.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {(_) in
             staticLinker.imageUploadProgress.cancel()
+            staticLinker.imageUploadProgress.removeAllObservers()
         }))
         self.progressDownload = UIProgressView(progressViewStyle: .default)
         self.progressDownload.setProgress(0.0, animated: true)
         self.progressDownload.frame = CGRect(x: 10, y: 70, width: 250, height: 0)
         alertView.view.addSubview(progressDownload)
-        present(alertView, animated: true, completion: nil)
+        
+        self.present(alertView, animated: true, completion: nil)
         
         staticLinker.imageUploadProgress.observe(.progress) { snapshot in
             if let error = snapshot.error{
@@ -273,8 +313,7 @@ extension chatViewController{
             }else{
                 self.progressDownload.setProgress(Float(snapshot.progress!.fractionCompleted), animated: true)
                 self.alertView.message = String(Int(snapshot.progress!.fractionCompleted * 100))
-                if snapshot.progress!.isFinished{
-                    staticLinker.imageUploadProgress.removeAllObservers()
+                if Int(snapshot.progress!.fractionCompleted * 100) == 100{
                     self.dismiss(animated: true, completion: nil)
                 }
             }
@@ -317,6 +356,10 @@ extension chatViewController{
                 if self.msgs.count == 0{self.msg = "No Messages"; self.messageTableView.reloadData()}
                 if self.initiate == false{
                     self.messageTableView.reloadData()
+                    if self.msgs.count != 0{
+                        let indexPath = IndexPath(item: self.msgs.count - 1, section: 0)
+                        self.messageTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    }
                     if let lastDocIndex = snapshot!.documents.last{
                         self.lastDocumentSnapshot = lastDocIndex
                         self.initiate = true

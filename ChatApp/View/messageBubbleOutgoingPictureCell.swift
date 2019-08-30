@@ -14,15 +14,14 @@ class messageBubbleOutgoingPictureCell: UITableViewCell {
     @IBOutlet weak var message: UIImageView!
     @IBOutlet weak var status: UILabel!
     @IBOutlet weak var stackView: UIStackView!
-    @IBOutlet weak var bubbleLayerView: UIView!
     
     var messageLayer = CAShapeLayer()
     
     override func awakeFromNib() {
-        self.bubbleLayerView.layer.insertSublayer(messageLayer, below: self.message.layer)
+        message.layer.mask = messageLayer
+        messageLayer.fillColor = UIColor(red: 188/255, green: 188/255, blue: 188/255, alpha: 1.0).cgColor
         self.stackView.arrangedSubviews.last?.isHidden = true
         self.stackView.arrangedSubviews.first?.isHidden = true
-        messageLayer.fillColor = self.message.backgroundColor?.cgColor
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -66,7 +65,6 @@ class messageBubbleOutgoingPictureCell: UITableViewCell {
         
         message.contentMode = .scaleAspectFill
         message.clipsToBounds = true
-        message.layer.mask = messageLayer
     }
 
 }

@@ -27,7 +27,8 @@ struct user_activity{
         })
     }
     
-    func sendMessage(formattedDate: String, sid:String, rid:String, sName:String, rName:String, _message:String, completion: @escaping (_ error: String?, _ msg: message?) -> ()){
+    func sendMessage(sid:String, rid:String, sName:String, rName:String, _message:String, completion: @escaping (_ error: String?, _ msg: message?) -> ()){
+        let formattedDate = String(Date().timeIntervalSince1970)
         var chatId = String()
         if sid > rid{
             chatId = sid + rid
@@ -60,17 +61,18 @@ struct user_activity{
             chatId = rid + sid
         }
         self.uploadImage(image: _message, completion: {(error,url) in
+            staticLinker.imageUploadProgress.removeAllObservers()
             var ref:DocumentReference?
             if let err = error{
                 completion(err,nil)
             }else if let Url = url{
-                ref = self.db.collection("messages").addDocument(data: ["sid":sid,"rid":rid,"sName":sName, "rName":rName,"sDel":"false", "rDel":"false","message":Url,"type":"img","date":formattedDate,"chatId":chatId], completion: {(error) in
+                ref = self.db.collection("messages").addDocument(data: ["sid":sid,"rid":rid,"sName":sName, "rName":rName,"sDel":"false", "rDel":"false","message":Url.absoluteString,"type":"img","date":formattedDate,"chatId":chatId], completion: {(error) in
                     if let err = error{
                         completion(err.localizedDescription,nil)
                     }else{
                         if let err = error{
                             completion(err.localizedDescription,nil)
-                        }else if let Url = url{
+                        }else {
                             self.addToChat(formattedDate: formattedDate, chatId: chatId, sid: sid, rid: rid, sName: sName, rName: rName, message: Url.absoluteString, type: "img", completion: {(error) in
                                 if let err = error{
                                     completion(err,nil)
@@ -164,7 +166,6 @@ struct user_activity{
     
     func getAllUsers(completion: @escaping (_ error: String?,_ messages:[user]?) -> ()){
         self.db.collection("chatUsers").addSnapshotListener({(snapshot, error) in
-            print("isbvisnv")
             if let err = error{
                 completion(err.localizedDescription,nil)
             }else{
