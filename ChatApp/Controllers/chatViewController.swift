@@ -12,6 +12,8 @@ import IQKeyboardManager
 import GrowingTextView
 import SDWebImage
 import YPImagePicker
+import AVFoundation
+import AudioToolbox
 
 class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
     
@@ -32,6 +34,12 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
     private var selectedIndex:IndexPath!
     private var initiate = false
     private var initiate1 = false
+    var audioPlayer:AVPlayer!
+    var play = UIImage(named: "play")
+    var pause = UIImage(named: "pause")
+    var audioButton:UIButton!
+    
+    @IBOutlet weak var recordButton: UIButton!
     
     @IBOutlet weak var messageTableView: UITableView!
     @IBOutlet weak var navItem: UINavigationItem!
@@ -40,20 +48,30 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
     var alertView: UIAlertController!
     var progressDownload: UIProgressView!
     private let refreshControl = UIRefreshControl()
-    let navigationView = UIView(frame: CGRect(x: 0, y: 0, width: 50 , height: 55))
+    let navigationView = UIView()
     let image : UIImage = UIImage(named: "userProfile")!
-    let imageView = UIImageViewRounded(frame: CGRect(x: -100, y: 0, width: 40, height: 40))
-    let nameLabel : UILabel = UILabel(frame: CGRect(x: -50, y: 10, width: 200, height: 25))
+    var imageView:UIImageViewRounded = UIImageViewRounded()
+    var nameLabel: UILabel = UILabel()
+    
+    var recordingSession: AVAudioSession!
+    var audioRecorder: AVAudioRecorder!
+    let settings = [AVFormatIDKey: Int(kAudioFormatMPEG4AAC), AVSampleRateKey: 1200, AVNumberOfChannelsKey: 1, AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.messageTableView.delegate = self
         self.messageTableView.dataSource = self
-        self.configureUI()
         self.setUpNavigationBar()
+        self.configureUI()
+        self.setupAudioSession()
+        self.recordButton.addTarget(self, action: #selector(holdRelease), for: UIControl.Event.touchUpInside);
     }
     
     private func setUpNavigationBar(){
+        self.imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+        self.nameLabel.frame = CGRect(x: 50, y: 10, width: self.view.frame.width/2, height: 25)
+        self.navigationView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width/2, height: self.navigationController!.navigationBar.frame.size.height)
+        
         nameLabel.text = recvName
         nameLabel.textColor = UIColor.black
         nameLabel.font = UIFont.boldSystemFont(ofSize: 18)
@@ -168,6 +186,33 @@ class chatViewController: UIViewController,UITableViewDelegate,UITableViewDataSo
         }
         present(picker, animated: true, completion: nil)
     }
+    @IBAction func audioDidPress(_ sender: Any) {
+        AudioServicesPlayAlertSound(1519)
+        self.recordAudio()
+    }
+    
+    @objc func holdRelease(sender:UIButton){
+        AudioServicesPlayAlertSound(1519)
+        self.audioRecorder.stop()
+        do {
+            let url = URL(string: self.getDirectory().appendingPathComponent("myRecording.m4a").absoluteString)
+            let audioPlayer = try AVAudioPlayer(contentsOf: url!)
+            let (h,m,s) = self.secondsToHoursMinutesSeconds(seconds: Int(audioPlayer.duration))
+            print(audioPlayer.duration)
+            if Int(audioPlayer.duration) > 1{
+                self.userActivityObj.sendAudio(sid: self.uid!, rid: self.recvId!, sName: self.uName!, rName: self.recvName, _message: url!.absoluteString, duration:"\(m):\(s)", completion: {(error,msg) in
+                    if let err = error{
+                        let alert = UIAlertController(title: "Alert", message: err, preferredStyle: UIAlertController.Style.alert)
+                        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                        self.present(alert, animated: true, completion: nil)
+                    }
+                })
+                showSendProgress()
+            }
+        } catch {
+            assertionFailure("Failed crating audio player: \(error).")
+        }
+    }
     @objc func loadData(){
         self.refreshControl.beginRefreshing()
         self.bringMoreMessages()
@@ -194,7 +239,12 @@ extension chatViewController{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.selectedIndex = indexPath
         if msgs[indexPath.row].sid == uid{
-            if msgs[indexPath.row].type == "img" {
+            if msgs[indexPath.row].type == "audio" {
+                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleOutgoingAudioCell
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+            }else if msgs[indexPath.row].type == "img" {
                 let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleIncomingPictureCell
                 let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
                 cell.date.text = data.1
@@ -206,7 +256,12 @@ extension chatViewController{
                 cell.status.text = staticLinker.getPastTime(for: data.0)
             }
         }else{
-            if msgs[indexPath.row].type == "img" {
+            if msgs[indexPath.row].type == "audio" {
+                let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleIncomingAudioCell
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+            }else if msgs[indexPath.row].type == "img" {
                 let cell = self.messageTableView.cellForRow(at: indexPath) as! messageBubbleOutgoingPictureCell
                 let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
                 cell.date.text = data.1
@@ -232,7 +287,21 @@ extension chatViewController{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if msgs[indexPath.row].sid == uid{
-            if "img" == msgs[indexPath.row].type {
+            if msgs[indexPath.row].type == "audio"{
+                let cell = tableView.dequeueReusableCell(withIdentifier: "outgoingAudio") as! messageBubbleOutgoingAudioCell
+                if self.selectedIndex == indexPath{
+                    cell.stackView.arrangedSubviews.last?.isHidden = false
+                    cell.stackView.arrangedSubviews.first?.isHidden = false
+                }
+                cell.audioButton.tag = indexPath.row
+                cell.time.text = self.msgs[indexPath.row].duration
+                cell.audioButton.addTarget(self, action: #selector(pressButton(_:)), for: .touchUpInside)
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+                cell.showOutgoingMessage(cellWidth: self.view.bounds.width)
+                return cell
+            }else if "img" == msgs[indexPath.row].type {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "outgoingPic") as! messageBubbleIncomingPictureCell
                 if self.selectedIndex == indexPath{
                     cell.stackView.arrangedSubviews.last?.isHidden = false
@@ -260,7 +329,21 @@ extension chatViewController{
                 return cell
             }
         }else{
-            if "img" == msgs[indexPath.row].type {
+            if msgs[indexPath.row].type == "audio"{
+                let cell = tableView.dequeueReusableCell(withIdentifier: "incomingAudio") as! messageBubbleIncomingAudioCell
+                if self.selectedIndex == indexPath{
+                    cell.stackView.arrangedSubviews.last?.isHidden = false
+                    cell.stackView.arrangedSubviews.first?.isHidden = false
+                }
+                cell.audioButton.tag = indexPath.row
+                cell.time.text = self.msgs[indexPath.row].duration
+                cell.audioButton.addTarget(self, action: #selector(pressButton(_:)), for: .touchUpInside)
+                let data = staticLinker.getPastStatus(date: self.msgs[indexPath.row].date)
+                cell.date.text = data.1
+                cell.status.text = staticLinker.getPastTime(for: data.0)
+                cell.showIncomingMessage(cellWidth: self.view.bounds.width)
+                return cell
+            }else if "img" == msgs[indexPath.row].type {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "incomingPic") as! messageBubbleOutgoingPictureCell
                 if self.selectedIndex == indexPath{
                     cell.stackView.arrangedSubviews.last?.isHidden = false
@@ -292,11 +375,35 @@ extension chatViewController{
 
 extension chatViewController{
     
+    @objc func pressButton(_ button: UIButton) {
+        if self.audioButton != button && self.audioButton != nil{
+            self.audioPlayer = nil
+            self.audioButton.setImage(self.play, for: .normal)
+            self.audioButton = button
+        }else{
+            self.audioButton = button
+        }
+        if self.audioButton.currentImage == self.play{
+            self.audioButton.setImage(self.pause, for: .normal)
+            self.playSound(soundUrl: self.msgs[button.tag].message)
+            audioPlayer.play()
+        }else{
+            self.audioButton.setImage(self.play, for: .normal)
+            audioPlayer.pause()
+        }
+    }
+    
+    func showErrorAlert(message:String){
+        self.alertView = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        self.alertView.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+        self.present(self.alertView, animated: true, completion: nil)
+    }
+    
     func showSendProgress(){
         self.alertView = UIAlertController(title: "Sending", message: "0%", preferredStyle: .alert)
         alertView.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: {(_) in
-            staticLinker.imageUploadProgress.cancel()
-            staticLinker.imageUploadProgress.removeAllObservers()
+            staticLinker.uploadProgress.cancel()
+            staticLinker.uploadProgress.removeAllObservers()
         }))
         self.progressDownload = UIProgressView(progressViewStyle: .default)
         self.progressDownload.setProgress(0.0, animated: true)
@@ -305,7 +412,7 @@ extension chatViewController{
         
         self.present(alertView, animated: true, completion: nil)
         
-        staticLinker.imageUploadProgress.observe(.progress) { snapshot in
+        staticLinker.uploadProgress.observe(.progress) { snapshot in
             if let error = snapshot.error{
                 self.alertView.title = "Error"
                 self.alertView.message = error.localizedDescription
@@ -336,7 +443,7 @@ extension chatViewController{
                     {
                         temp = try decoder.decode(messageCodable.self, from: jsonData)
                         if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
-                            let newMsg = message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!)
+                            let newMsg = message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!, duration: temp.duration!)
                             if !self.msgs.contains(where: {$0.date == newMsg.date}){
                                 if self.initiate == false{
                                     self.msgs.insert(newMsg,at: 0)
@@ -389,7 +496,7 @@ extension chatViewController{
                         {
                             temp = try decoder.decode(messageCodable.self, from: jsonData)
                             if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
-                                let newMsg = message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!)
+                                let newMsg = message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!, duration: temp.duration!)
                                 self.msgs.insert(newMsg,at: 0)
                                 self.messageTableView.beginUpdates()
                                 self.messageTableView.insertRows(at: [IndexPath.init(row: 0, section: 0)], with: .automatic)

@@ -10,7 +10,7 @@ import Foundation
 import Firebase
 
 struct staticLinker {
-    static var imageUploadProgress: StorageUploadTask!
+    static var uploadProgress: StorageUploadTask!
     static var listnerRef: ListenerRegistration!
     static var listnerRef1: ListenerRegistration!
     

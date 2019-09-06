@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		12091F4A2313E4FB00BEE9A5 /* textFieldDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12091F492313E4FA00BEE9A5 /* textFieldDesign.swift */; };
 		121F2B6D230EBBBC00AA6ED1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 121F2B6C230EBBBC00AA6ED1 /* GoogleService-Info.plist */; };
+		1236E0F723213A6500859E3D /* messageBubbleOutgoingAudioCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236E0F623213A6500859E3D /* messageBubbleOutgoingAudioCell.swift */; };
+		1236E0F9232141B500859E3D /* chatViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236E0F8232141B500859E3D /* chatViewControllerExtension.swift */; };
+		1236E0FB2321524A00859E3D /* messageBubbleIncomingAudioCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236E0FA2321524A00859E3D /* messageBubbleIncomingAudioCell.swift */; };
 		125A681023164E45002A9FB4 /* StaticLinker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 125A680F23164E45002A9FB4 /* StaticLinker.swift */; };
 		128C6A452306C9FB008A1746 /* messageBubbleOutgoingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 128C6A442306C9FB008A1746 /* messageBubbleOutgoingCell.swift */; };
 		12A8517222FABD5400F0EA57 /* messageBubbleIncomingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A8517122FABD5400F0EA57 /* messageBubbleIncomingCell.swift */; };
@@ -47,6 +50,9 @@
 /* Begin PBXFileReference section */
 		12091F492313E4FA00BEE9A5 /* textFieldDesign.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = textFieldDesign.swift; sourceTree = "<group>"; };
 		121F2B6C230EBBBC00AA6ED1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1236E0F623213A6500859E3D /* messageBubbleOutgoingAudioCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleOutgoingAudioCell.swift; sourceTree = "<group>"; };
+		1236E0F8232141B500859E3D /* chatViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chatViewControllerExtension.swift; sourceTree = "<group>"; };
+		1236E0FA2321524A00859E3D /* messageBubbleIncomingAudioCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleIncomingAudioCell.swift; sourceTree = "<group>"; };
 		125A680F23164E45002A9FB4 /* StaticLinker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticLinker.swift; sourceTree = "<group>"; };
 		128C6A442306C9FB008A1746 /* messageBubbleOutgoingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleOutgoingCell.swift; sourceTree = "<group>"; };
 		12A8517122FABD5400F0EA57 /* messageBubbleIncomingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = messageBubbleIncomingCell.swift; sourceTree = "<group>"; };
@@ -112,6 +118,8 @@
 				12E0D191230BECB8008719D0 /* messageBubbleIncomingPictureCell.swift */,
 				128C6A442306C9FB008A1746 /* messageBubbleOutgoingCell.swift */,
 				12A8517122FABD5400F0EA57 /* messageBubbleIncomingCell.swift */,
+				1236E0F623213A6500859E3D /* messageBubbleOutgoingAudioCell.swift */,
+				1236E0FA2321524A00859E3D /* messageBubbleIncomingAudioCell.swift */,
 				12F2B7E8230D66170073231A /* chatsTableViewCell.swift */,
 				12D7B0C9231689C20015F1B2 /* userTableViewCell.swift */,
 			);
@@ -140,6 +148,7 @@
 				12F2B7E4230D591A0073231A /* AllChatsViewController.swift */,
 				12D7B0C7231684460015F1B2 /* selectUserViewController.swift */,
 				326EBA912053387000F28A45 /* chatViewController.swift */,
+				1236E0F8232141B500859E3D /* chatViewControllerExtension.swift */,
 				12E0D1AA230BF4DA008719D0 /* RouteManager.swift */,
 			);
 			path = Controllers;
@@ -385,12 +394,15 @@
 				12D7B0C6231681F70015F1B2 /* user.swift in Sources */,
 				12E0D192230BECB8008719D0 /* messageBubbleIncomingPictureCell.swift in Sources */,
 				12E0D1A5230BF38B008719D0 /* PasswordResetViewController.swift in Sources */,
+				1236E0F723213A6500859E3D /* messageBubbleOutgoingAudioCell.swift in Sources */,
 				128C6A452306C9FB008A1746 /* messageBubbleOutgoingCell.swift in Sources */,
 				12E0D1A1230BF37E008719D0 /* LoginViewController.swift in Sources */,
 				12F2B7E9230D66170073231A /* chatsTableViewCell.swift in Sources */,
 				12D7B0C8231684460015F1B2 /* selectUserViewController.swift in Sources */,
 				12F2B7E5230D591A0073231A /* AllChatsViewController.swift in Sources */,
+				1236E0F9232141B500859E3D /* chatViewControllerExtension.swift in Sources */,
 				12D7B0CA231689C20015F1B2 /* userTableViewCell.swift in Sources */,
+				1236E0FB2321524A00859E3D /* messageBubbleIncomingAudioCell.swift in Sources */,
 				12F2B7E7230D5BB50073231A /* message.swift in Sources */,
 				12E0D198230BF0AE008719D0 /* UIImageViewRounded.swift in Sources */,
 				12E0D1AE230BF5A8008719D0 /* loginRequest.swift in Sources */,

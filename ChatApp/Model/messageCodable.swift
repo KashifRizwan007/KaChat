@@ -20,6 +20,7 @@ struct messageCodable : Codable {
     let sid : String?
     let type : String?
     let chatId : String?
+    let duration : String?
     
     enum CodingKeys: String, CodingKey {
         case date = "date"
@@ -32,6 +33,7 @@ struct messageCodable : Codable {
         case sName = "sName"
         case type = "type"
         case chatId = "chatId"
+        case duration = "duration"
     }
     
     init(from decoder: Decoder) throws {
@@ -46,6 +48,7 @@ struct messageCodable : Codable {
         sName = try values.decodeIfPresent(String.self, forKey: .sName)
         type = try values.decodeIfPresent(String.self, forKey: .type)
         chatId = try values.decodeIfPresent(String.self, forKey: .chatId)
+        duration = try values.decodeIfPresent(String.self, forKey: .duration)
     }
     
 }

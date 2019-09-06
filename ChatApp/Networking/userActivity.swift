@@ -36,15 +36,15 @@ struct user_activity{
             chatId = rid + sid
         }
         var ref:DocumentReference?
-        ref = self.db.collection("messages").addDocument(data: ["sid":sid,"rid":rid, "sName":sName, "rName":rName,"message": _message,"type":"txt", "sDel":"false", "rDel":"false","date":formattedDate,"chatId":chatId], completion: {(error) in
+        ref = self.db.collection("messages").addDocument(data: ["sid":sid,"rid":rid, "sName":sName, "rName":rName,"message": _message,"type":"txt", "sDel":"false", "duration":"", "rDel":"false","date":formattedDate,"chatId":chatId], completion: {(error) in
             if let err = error{
                 completion(err.localizedDescription,nil)
             }else{
-                self.addToChat(formattedDate: formattedDate, chatId: chatId, sid: sid, rid: rid, sName: sName, rName: rName, message: _message, type: "txt", completion: {(error) in
+                self.addToChat(formattedDate: formattedDate, chatId: chatId, sid: sid, rid: rid, sName: sName, rName: rName, message: _message, type: "txt", duration: "", completion: {(error) in
                     if let err = error{
                         completion(err,nil)
                     }else{
-                        let msg = message(date: formattedDate, message: _message, rDel: "false", rid: rid, rName: rName, sDel: "false", sid: sid, sName: sName, type: "txt", messageId: ref!.documentID, chatId: chatId)
+                        let msg = message(date: formattedDate, message: _message, rDel: "false", rid: rid, rName: rName, sDel: "false", sid: sid, sName: sName, type: "txt", messageId: ref!.documentID, chatId: chatId, duration: "")
                         completion(nil,msg)
                     }
                 })
@@ -61,23 +61,22 @@ struct user_activity{
             chatId = rid + sid
         }
         self.uploadImage(image: _message, completion: {(error,url) in
-            staticLinker.imageUploadProgress.removeAllObservers()
             var ref:DocumentReference?
             if let err = error{
                 completion(err,nil)
             }else if let Url = url{
-                ref = self.db.collection("messages").addDocument(data: ["sid":sid,"rid":rid,"sName":sName, "rName":rName,"sDel":"false", "rDel":"false","message":Url.absoluteString,"type":"img","date":formattedDate,"chatId":chatId], completion: {(error) in
+                ref = self.db.collection("messages").addDocument(data: ["sid":sid,"rid":rid,"sName":sName, "rName":rName,"sDel":"false", "rDel":"false","duration":"","message":Url.absoluteString,"type":"img","date":formattedDate,"chatId":chatId], completion: {(error) in
                     if let err = error{
                         completion(err.localizedDescription,nil)
                     }else{
                         if let err = error{
                             completion(err.localizedDescription,nil)
                         }else {
-                            self.addToChat(formattedDate: formattedDate, chatId: chatId, sid: sid, rid: rid, sName: sName, rName: rName, message: Url.absoluteString, type: "img", completion: {(error) in
+                            self.addToChat(formattedDate: formattedDate, chatId: chatId, sid: sid, rid: rid, sName: sName, rName: rName, message: Url.absoluteString, type: "img", duration: "", completion: {(error) in
                                 if let err = error{
                                     completion(err,nil)
                                 }else{
-                                    let msg = message(date: formattedDate, message: Url.absoluteString, rDel: "false", rid: rid, rName: rName, sDel: "false", sid: sid, sName: sName, type: "img", messageId: ref!.documentID, chatId: chatId)
+                                    let msg = message(date: formattedDate, message: Url.absoluteString, rDel: "false", rid: rid, rName: rName, sDel: "false", sid: sid, sName: sName, type: "img", messageId: ref!.documentID, chatId: chatId, duration: "")
                                     completion(nil, msg)
                                 }
                             })
@@ -88,8 +87,43 @@ struct user_activity{
         })
     }
     
-    func addToChat(formattedDate:String,chatId:String, sid:String, rid:String, sName:String, rName:String, message:String, type:String, completion: @escaping (_ error:String?) ->()){
-        self.db.collection("chat").document(chatId).setData(["sid":sid,"rid":rid,"sName":sName, "rName":rName,"sDel":"false", "rDel":"false","message":message,"type":type,"date":formattedDate,"chatId":chatId], completion: {(error) in
+    func sendAudio( sid:String, rid:String, sName:String, rName:String, _message:String, duration:String, completion: @escaping (_ error: String?, _ msg: message?) -> ()){
+        let formattedDate = String(Date().timeIntervalSince1970)
+        var chatId = String()
+        if sid > rid{
+            chatId = sid + rid
+        }else{
+            chatId = rid + sid
+        }
+        self.uploadAudio(audioPath: _message, completion: {(error,url) in
+            var ref:DocumentReference?
+            if let err = error{
+                completion(err,nil)
+            }else if let Url = url{
+                ref = self.db.collection("messages").addDocument(data: ["sid":sid,"rid":rid,"sName":sName, "rName":rName,"sDel":"false", "rDel":"false", "duration":duration,"message":Url.absoluteString,"type":"audio","date":formattedDate,"chatId":chatId], completion: {(error) in
+                    if let err = error{
+                        completion(err.localizedDescription,nil)
+                    }else{
+                        if let err = error{
+                            completion(err.localizedDescription,nil)
+                        }else {
+                            self.addToChat(formattedDate: formattedDate, chatId: chatId, sid: sid, rid: rid, sName: sName, rName: rName, message: Url.absoluteString, type: "audio", duration: duration, completion: {(error) in
+                                if let err = error{
+                                    completion(err,nil)
+                                }else{
+                                    let msg = message(date: formattedDate, message: Url.absoluteString, rDel: "false", rid: rid, rName: rName, sDel: "false", sid: sid, sName: sName, type: "audio", messageId: ref!.documentID, chatId: chatId, duration: duration)
+                                    completion(nil, msg)
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+        })
+    }
+    
+    func addToChat(formattedDate:String,chatId:String, sid:String, rid:String, sName:String, rName:String, message:String, type:String, duration: String, completion: @escaping (_ error:String?) ->()){
+        self.db.collection("chat").document(chatId).setData(["sid":sid,"rid":rid,"sName":sName, "rName":rName,"sDel":"false", "rDel":"false","message":message,"type":type,"date":formattedDate,"duration":duration,"chatId":chatId], completion: {(error) in
             if let err = error{
                 completion(err.localizedDescription)
             }else{
@@ -98,10 +132,33 @@ struct user_activity{
         })
     }
     
+    func uploadAudio(audioPath:String?, completion: @escaping (_ error: String?,_ url:URL?) -> ()){
+        if staticLinker.uploadProgress != nil{
+            staticLinker.uploadProgress.removeAllObservers()
+        }
+        let audioUpload = Storage.storage().reference().child("audio/\(UUID())\(uid!)")
+        staticLinker.uploadProgress = audioUpload.putFile(from: URL(string: audioPath!)!, metadata: nil, completion: { (metadata, error) in
+            if let err = error {
+                completion(err.localizedDescription,nil)
+            }else{
+                audioUpload.downloadURL(completion: { (url, error) in
+                    if let err = error {
+                        completion(err.localizedDescription,nil)
+                    }else{
+                        completion(nil,url)
+                    }
+                })
+            }
+        })
+    }
+    
     func uploadImage(image:UIImage?, completion: @escaping (_ error: String?,_ url:URL?) -> ()){
+        if staticLinker.uploadProgress != nil{
+            staticLinker.uploadProgress.removeAllObservers()
+        }
         let data = image!.jpegData(compressionQuality: 1.0)
         let imageUpload = Storage.storage().reference().child("Images/\(UUID())\(uid!)/image.jpg")
-        staticLinker.imageUploadProgress = imageUpload.putData(data!, metadata: nil) { (metadata, error) in
+        staticLinker.uploadProgress = imageUpload.putData(data!, metadata: nil) { (metadata, error) in
             if let err = error {
                 completion(err.localizedDescription,nil)
             }else{
@@ -148,7 +205,7 @@ struct user_activity{
                     {
                         temp = try decoder.decode(messageCodable.self, from: jsonData)
                         if (temp.sid == self.uid && temp.sDel == "false") || (temp.rid == self.uid && temp.rDel == "false"){
-                            DataArray.append(message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!))
+                            DataArray.append(message(date: temp.date!, message: temp.message!, rDel: temp.rDel!, rid: temp.rid!, rName: temp.rName!, sDel: temp.sDel!, sid: temp.sid!, sName: temp.sName!, type: temp.type!, messageId: documents.documentID, chatId: temp.chatId!, duration: temp.duration!))
                         }
                     }
                     catch{

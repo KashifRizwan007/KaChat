@@ -19,9 +19,10 @@ struct message {
     var sName : String
     var type : String
     var messageId : String
-    let chatId : String
+    var chatId : String
+    var duration : String
     
-    init(date : String, message : String, rDel : String, rid : String, rName : String, sDel : String, sid : String, sName : String, type : String, messageId : String, chatId : String) {
+    init(date : String, message : String, rDel : String, rid : String, rName : String, sDel : String, sid : String, sName : String, type : String, messageId : String, chatId : String, duration : String) {
         self.date = date
         self.message = message
         self.rDel = rDel
@@ -33,5 +34,6 @@ struct message {
         self.type = type
         self.messageId = messageId
         self.chatId = chatId
+        self.duration = duration
     }
 }
