@@ -132,8 +132,10 @@ extension AllChatsViewController{
         cell.date.text = staticLinker.getPastTime(for: staticLinker.getPastStatus(date: self.chatDataList[indexPath.row].date).0)
         if self.chatDataList[indexPath.row].type == "txt"{
             cell.content.text = self.chatDataList[indexPath.row].message
-        }else{
+        }else if self.chatDataList[indexPath.row].type == "img"{
             cell.content.text = "📷 Photo"
+        }else if self.chatDataList[indexPath.row].type == "audio"{
+            cell.content.text = "🎤 \(self.chatDataList[indexPath.row].duration)"
         }
         return cell
     }

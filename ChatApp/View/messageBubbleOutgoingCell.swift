@@ -41,23 +41,17 @@ class messageBubbleOutgoingCell: UITableViewCell {
     
     func showOutgoingMessage(text: String, cellWidth: CGFloat){
         
-        let label =  UILabel()
-        label.numberOfLines = 0
-        label.font = UIFont.systemFont(ofSize: 17)
-        label.textColor = .white
-        label.text = text
-        
         let constraintRect = CGSize(width: 0.66 * cellWidth,
                                     height: .greatestFiniteMagnitude)
         let boundingBox = text.boundingRect(with: constraintRect,
                                             options: .usesLineFragmentOrigin,
-                                            attributes: [.font: label.font],
+                                            attributes: [.font: self.message.font!],
                                             context: nil)
-        label.frame.size = CGSize(width: ceil(boundingBox.width),
-                                  height: ceil(boundingBox.height))
+        self.message.frame.size = CGSize(width: ceil(boundingBox.width),
+                                         height: ceil(boundingBox.height))
         
-        let bubbleSize = CGSize(width: label.frame.width + 28,
-                                height: label.frame.height + 18)
+        let bubbleSize = CGSize(width: self.message.frame.width + 28,
+                                height: self.message.frame.height + 18)
         
         let width = bubbleSize.width
         let height = bubbleSize.height
